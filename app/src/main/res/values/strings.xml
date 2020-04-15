@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="app_name">GitHubPaging</string>
+
+    <!-- Main Screen -->
+    <string name="no_repositories_available">No repositories available.</string>
+
+</resources>
