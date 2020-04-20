@@ -22,9 +22,7 @@ class ReposViewModel(private val reposRepository: ReposRepository) : ViewModel()
             pageSize = PAGE_SIZE,
             enablePlaceholders = PLACEHOLDERS_ENABLED
         )
-
-        usersWithReposPagedList = reposRepository.getUsersWithRepos()
-            .toLiveData(pagedListConfig)
+        usersWithReposPagedList = reposRepository.getUsersWithRepos().toLiveData(pagedListConfig)
     }
 
     fun invalidateDataSource() {

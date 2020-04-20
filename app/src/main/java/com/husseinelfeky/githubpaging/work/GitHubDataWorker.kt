@@ -45,8 +45,9 @@ class GitHubDataWorker(appContext: Context, params: WorkerParameters) :
                 Toast.LENGTH_SHORT
             ).show()
 
-            Timber.d("WorkManager: Work request for syncing users and repos is run.")
-        } catch (e: HttpException) {
+            Timber.d("WorkManager: Work request for syncing users and repos is running.")
+        }
+        catch (e: HttpException) {
             return Result.retry()
         }
 

@@ -1,16 +1,16 @@
 package com.husseinelfeky.githubpaging.ui
 
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.husseinelfeky.githubpaging.R
 import com.husseinelfeky.githubpaging.common.NetworkState
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
+import com.husseinelfeky.githubpaging.sectionedRecyclerView.SectionedRecyclerViewAdapter
 import com.husseinelfeky.githubpaging.ui.viewholder.LoadingViewHolder
 import com.husseinelfeky.githubpaging.ui.viewholder.UserViewHolder
 
-class UsersAdapter: PagedListAdapter<UserWithRepos, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
+class SectionedAdapter: SectionedRecyclerViewAdapter<UserWithRepos, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
 
     private var networkState: NetworkState? = null
 
@@ -65,21 +65,21 @@ class UsersAdapter: PagedListAdapter<UserWithRepos, RecyclerView.ViewHolder>(DIF
 
     companion object {
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<UserWithRepos> =
-            object : DiffUtil.ItemCallback<UserWithRepos>() {
-                override fun areItemsTheSame(
-                    oldItem: UserWithRepos,
-                    newItem: UserWithRepos
-                ): Boolean {
-                    return oldItem.user.id == newItem.user.id &&
-                            oldItem.repos == newItem.repos
-                }
+                object : DiffUtil.ItemCallback<UserWithRepos>() {
+                    override fun areItemsTheSame(
+                            oldItem: UserWithRepos,
+                            newItem: UserWithRepos
+                    ): Boolean {
+                        return oldItem.user.id == newItem.user.id &&
+                                oldItem.repos == newItem.repos
+                    }
 
-                override fun areContentsTheSame(
-                    oldItem: UserWithRepos,
-                    newItem: UserWithRepos
-                ): Boolean {
-                    return oldItem == newItem
+                    override fun areContentsTheSame(
+                            oldItem: UserWithRepos,
+                            newItem: UserWithRepos
+                    ): Boolean {
+                        return oldItem == newItem
+                    }
                 }
-            }
     }
 }

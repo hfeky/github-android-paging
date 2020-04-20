@@ -27,12 +27,12 @@ class GitHubPagingApp : Application() {
 
     private fun initGitHubWorker() {
         val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresCharging(true)
-            .build()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                // .setRequiresCharging(true)
+                .build()
 
         val gitHubWorkRequest =
-            PeriodicWorkRequestBuilder<GitHubDataWorker>(1, TimeUnit.DAYS)
+            PeriodicWorkRequestBuilder<GitHubDataWorker>(1, TimeUnit.HOURS)
                 .setConstraints(constraints)
                 .build()
 

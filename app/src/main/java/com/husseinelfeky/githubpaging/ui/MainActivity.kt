@@ -17,12 +17,12 @@ import com.husseinelfeky.githubpaging.ui.viewmodel.ReposViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_loading.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
 
     private lateinit var viewModel: ReposViewModel
 
     private val usersAdapter = UsersAdapter()
-
+    // private val usersAdapter = SectionedAdapter()
     private var isInitialLoad = true
     private var isRefreshing = false
 
@@ -30,23 +30,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
         showLoading()
         initAdapter()
         initObservables()
     }
 
     private fun initAdapter() {
-        viewModel = ViewModelProvider(
-            this,
-            ReposViewModelFactory(ReposRepository(getDatabase(this).gitHubDao()))
-        ).get(ReposViewModel::class.java)
-
+        val viewModelFactory = ReposViewModelFactory(ReposRepository(getDatabase(this).gitHubDao()))
+        viewModel = ViewModelProvider(this, viewModelFactory).get(ReposViewModel::class.java)
         swipe_refresh.setOnRefreshListener {
             isRefreshing = true
             viewModel.invalidateDataSource()
         }
-
         recycler_view.adapter = usersAdapter
     }
 
@@ -55,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         // the object reference itself but not the content inside.
         viewModel.usersWithReposPagedList.observe(
             this,
-            Observer<PagedList<UserWithRepos>> { usersWithRepos ->
+            Observer { usersWithRepos ->
                 hideLoading()
                 updateUsersWithReposList(usersWithRepos)
                 usersAdapter.setNetworkState(NetworkState.LOADED)
