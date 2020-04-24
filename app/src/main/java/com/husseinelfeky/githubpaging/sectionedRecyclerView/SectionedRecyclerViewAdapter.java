@@ -14,10 +14,7 @@ import java.util.UUID;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.paging.PagedList;
-import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,8 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
  * Sections are displayed in the same order they were added.
  */
 @SuppressWarnings({"WeakerAccess", "PMD.CollapsibleIfStatements"})
-//public class SectionedRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder> extends PagedListAdapter<T, VH> {
+public class SectionedRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+// public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder> extends PagedListAdapter<T, VH> {
 
     public static final int VIEW_TYPE_HEADER = 0;
     public static final int VIEW_TYPE_FOOTER = 1;
@@ -43,8 +40,11 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
     private transient int viewTypeCount;
     private static final int VIEW_TYPE_QTY = 6;
 
-    public SectionedRecyclerViewAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
-        super(diffCallback);
+    public SectionedRecyclerViewAdapter() {
+//  public SectionedRecyclerViewAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
+
+//        super(diffCallback);
+        super();
         sections = new ListOrderedMap<>();
         sectionViewTypeNumbers = new LinkedHashMap<>();
         sectionAdapters = new HashMap<>();
@@ -52,15 +52,12 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
 
     @NonNull
     @Override
-    public VH onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         RecyclerView.ViewHolder viewHolder = null;
-
         for (final Map.Entry<String, Integer> entry : sectionViewTypeNumbers.entrySet()) {
             if (viewType >= entry.getValue() && viewType < entry.getValue() + VIEW_TYPE_QTY) {
-
                 final Section section = sections.get(entry.getKey());
                 final int sectionViewType = viewType - entry.getValue();
-
                 switch (sectionViewType) {
                     case VIEW_TYPE_HEADER:
                         viewHolder = getHeaderViewHolder(parent, section);
@@ -85,7 +82,8 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
                 }
             }
         }
-        return (VH) viewHolder;
+        return viewHolder;
+//        return (VH) viewHolder;
     }
 
     private RecyclerView.ViewHolder getItemViewHolder(final ViewGroup parent, final Section section) {
@@ -198,9 +196,7 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
      */
     public String addSection(final Section section) {
         final String tag = generateSectionTag();
-
         addSection(tag, section);
-
         return tag;
     }
 
@@ -236,9 +232,7 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
      */
     public String addSection(final int index, final Section section) {
         final String tag = generateSectionTag();
-
         addSection(index, tag, section);
-
         return tag;
     }
 
@@ -273,7 +267,6 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
                 tag = entry.getKey();
             }
         }
-
         if (tag != null) {
             this.removeSection(tag);
         }
@@ -306,7 +299,8 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VH holder, int position, @NonNull List<Object> payloads) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+    // public void onBindViewHolder(@NonNull VH holder, int position, @NonNull List<Object> payloads) {
         if (payloads.isEmpty()) {
             // empty list requires full update as per documentation
             super.onBindViewHolder(holder, position, payloads);
@@ -334,15 +328,12 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
 
         for (final Map.Entry<String, Section> entry : sections.entrySet()) {
             final Section section = entry.getValue();
-
             // ignore invisible sections
             if (!section.isVisible()) {
                 continue;
             }
-
             final int sectionTotal = section.getSectionItemsTotal();
-
-            // check if position is in this section
+            // Check if position is in this section
             if (position >= currentPos && position <= (currentPos + sectionTotal - 1)) {
 
                 if (section.hasHeader()) {
@@ -356,7 +347,6 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
                         return;
                     }
                 }
-
                 if (section.hasFooter()) {
                     if (position == currentPos + sectionTotal - 1) {
                         // delegate the binding to the section header
@@ -368,15 +358,12 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
                         return;
                     }
                 }
-
                 // delegate the binding to the section content
                 onBindContentViewHolder(getSectionForPosition(position), holder, position, payloads);
                 return;
             }
-
             currentPos += sectionTotal;
         }
-
         throw new IndexOutOfBoundsException("Invalid position");
     }
 
@@ -388,28 +375,32 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
             case LOADING:
                 if (payloads == null) {
                     section.onBindLoadingViewHolder(holder);
-                } else {
+                }
+                else {
                     section.onBindLoadingViewHolder(holder, payloads);
                 }
                 break;
             case LOADED:
                 if (payloads == null) {
                     section.onBindItemViewHolder(holder, getPositionInSection(position));
-                } else {
+                }
+                else {
                     section.onBindItemViewHolder(holder, getPositionInSection(position), payloads);
                 }
                 break;
             case FAILED:
                 if (payloads == null) {
                     section.onBindFailedViewHolder(holder);
-                } else {
+                }
+                else {
                     section.onBindFailedViewHolder(holder, payloads);
                 }
                 break;
             case EMPTY:
                 if (payloads == null) {
                     section.onBindEmptyViewHolder(holder);
-                } else {
+                }
+                else {
                     section.onBindEmptyViewHolder(holder, payloads);
                 }
                 break;
@@ -421,18 +412,14 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
     @Override
     public int getItemCount() {
         int count = 0;
-
         for (final Map.Entry<String, Section> entry : sections.entrySet()) {
             final Section section = entry.getValue();
-
-            // ignore invisible sections
+            // Ignore invisible sections
             if (!section.isVisible()) {
                 continue;
             }
-
             count += section.getSectionItemsTotal();
         }
-
         return count;
     }
 
@@ -451,31 +438,24 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
 
         for (final Map.Entry<String, Section> entry : sections.entrySet()) {
             final Section section = entry.getValue();
-
-            // ignore invisible sections
+            // Ignore invisible sections
             if (!section.isVisible()) {
                 continue;
             }
-
             final int sectionTotal = section.getSectionItemsTotal();
-
-            // check if position is in this section
+            // Check if position is in this section
             if (position >= currentPos && position <= (currentPos + sectionTotal - 1)) {
-
                 final int viewType = sectionViewTypeNumbers.get(entry.getKey());
-
                 if (section.hasHeader()) {
                     if (position == currentPos) {
                         return viewType;
                     }
                 }
-
                 if (section.hasFooter()) {
                     if (position == currentPos + sectionTotal - 1) {
                         return viewType + 1;
                     }
                 }
-
                 switch (section.getState()) {
                     case LOADED:
                         return viewType + 2;
@@ -489,10 +469,8 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
                         throw new IllegalStateException("Invalid state");
                 }
             }
-
             currentPos += sectionTotal;
         }
-
         throw new IndexOutOfBoundsException("Invalid position");
     }
 
@@ -530,7 +508,6 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
      */
     public int getSectionItemViewType(final int position) {
         final int viewType = getItemViewType(position);
-
         return getSectionItemViewTypeForAdapterViewType(viewType);
     }
 
@@ -541,27 +518,20 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
      * @return Section object for that position
      */
     public Section getSectionForPosition(final int position) {
-
         int currentPos = 0;
-
         for (final Map.Entry<String, Section> entry : sections.entrySet()) {
             final Section section = entry.getValue();
-
-            // ignore invisible sections
+            // Ignore invisible sections
             if (!section.isVisible()) {
                 continue;
             }
-
             final int sectionTotal = section.getSectionItemsTotal();
-
-            // check if position is in this section
+            // Check if position is in this section
             if (position >= currentPos && position <= (currentPos + sectionTotal - 1)) {
                 return section;
             }
-
             currentPos += sectionTotal;
         }
-
         throw new IndexOutOfBoundsException("Invalid position");
     }
 
@@ -573,25 +543,19 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
      */
     public int getPositionInSection(final int position) {
         int currentPos = 0;
-
         for (final Map.Entry<String, Section> entry : sections.entrySet()) {
             final Section section = entry.getValue();
-
-            // ignore invisible sections
+            // Ignore invisible sections
             if (!section.isVisible()) {
                 continue;
             }
-
             final int sectionTotal = section.getSectionItemsTotal();
-
             // check if position is in this section
             if (position >= currentPos && position <= (currentPos + sectionTotal - 1)) {
                 return position - currentPos - (section.hasHeader() ? 1 : 0);
             }
-
             currentPos += sectionTotal;
         }
-
         throw new IndexOutOfBoundsException("Invalid position");
     }
 
@@ -646,34 +610,29 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
      */
     public int getSectionIndex(final Section section) {
         int index = 0;
-
         for (final Map.Entry<String, Section> entry : this.sections.entrySet()) {
             if (entry.getValue() == section) {
                 return index;
             }
             index++;
         }
-
         return -1;
     }
 
     public SectionAdapter getAdapterForSection(final String tag) {
         final Section section = getValidSectionOrThrowException(tag);
-
         return getAdapterForSection(section);
     }
 
     public SectionAdapter getAdapterForSection(final Section section) {
         final SectionAdapter sectionAdapter = sectionAdapters.get(section);
-
         if (sectionAdapter == null) {
             throw new IllegalArgumentException("Invalid section");
         }
-
         return sectionAdapter;
     }
 
-    // in order to allow this class to be unit tested
+    // In order to allow this class to be unit tested
     @VisibleForTesting
     public View inflate(@LayoutRes final int layoutResourceId, final ViewGroup parent) {
         return LayoutInflater.from(parent.getContext()).inflate(layoutResourceId, parent, false);
@@ -682,11 +641,9 @@ public class SectionedRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder>
     @NonNull
     private Section getValidSectionOrThrowException(final String tag) {
         final Section section = getSection(tag);
-
         if (section == null) {
             throw new IllegalArgumentException("Invalid tag: " + tag);
         }
-
         return section;
     }
 

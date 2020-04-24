@@ -12,7 +12,7 @@ import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import com.husseinelfeky.githubpaging.ui.ReposAdapter
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class UserViewHolder(view: View): RecyclerView.ViewHolder(view) {
 
     fun bind(userWithRepos: UserWithRepos) {
         val user = userWithRepos.user

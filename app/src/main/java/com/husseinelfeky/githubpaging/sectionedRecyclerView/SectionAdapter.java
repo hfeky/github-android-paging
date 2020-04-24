@@ -22,7 +22,7 @@ public class SectionAdapter implements SectionPositionIdentifier, SectionNotifie
     private final transient SectionedRecyclerViewAdapter sectionedAdapter;
     private final transient Section section;
 
-    /* default */ SectionAdapter(final SectionedRecyclerViewAdapter sectionedAdapter, final Section section) {
+    public SectionAdapter(final SectionedRecyclerViewAdapter sectionedAdapter, final Section section) {
         this.sectionedAdapter = sectionedAdapter;
         this.section = section;
     }
@@ -53,7 +53,6 @@ public class SectionAdapter implements SectionPositionIdentifier, SectionNotifie
     @Override
     public int getSectionPosition() {
         int currentPos = 0;
-
         ListOrderedMap<String, Section> map = sectionedAdapter.getSections();
         for (final Map.Entry<String, Section> entry : map.entrySet()) {
             final Section loopSection = entry.getValue();
@@ -61,16 +60,12 @@ public class SectionAdapter implements SectionPositionIdentifier, SectionNotifie
             if (!loopSection.isVisible()) {
                 continue;
             }
-
             if (loopSection == section) {
                 return currentPos;
             }
-
             final int sectionTotal = loopSection.getSectionItemsTotal();
-
             currentPos += sectionTotal;
         }
-
         throw new IllegalArgumentException("Section is not in the adapter.");
     }
 

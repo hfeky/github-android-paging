@@ -10,8 +10,13 @@ import androidx.paging.PagedList
 import com.husseinelfeky.githubpaging.R
 import com.husseinelfeky.githubpaging.common.NetworkState
 import com.husseinelfeky.githubpaging.persistence.AppRoomDatabase.Companion.getDatabase
+import com.husseinelfeky.githubpaging.persistence.entities.GitHubRepo
+import com.husseinelfeky.githubpaging.persistence.entities.User
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import com.husseinelfeky.githubpaging.repository.ReposRepository
+import com.husseinelfeky.githubpaging.sectionedRecyclerView.Section
+import com.husseinelfeky.githubpaging.sectionedRecyclerView.SectionAdapter
+import com.husseinelfeky.githubpaging.ui.section.GitHubSectionedAdapter
 import com.husseinelfeky.githubpaging.ui.viewmodel.ReposViewModel
 import com.husseinelfeky.githubpaging.ui.viewmodel.ReposViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,8 +26,8 @@ class MainActivity: AppCompatActivity() {
 
     private lateinit var viewModel: ReposViewModel
 
-    private val usersAdapter = UsersAdapter()
-    // private val usersAdapter = SectionedAdapter()
+    // private val usersAdapter = UsersAdapter()
+    private val usersAdapter = GitHubSectionedAdapter()
     private var isInitialLoad = true
     private var isRefreshing = false
 
@@ -79,6 +84,10 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun updateUsersWithReposList(usersWithRepos: PagedList<UserWithRepos>) {
+        //
+        var section: UserWithReposSection? = null
+        usersAdapter.addSection(section)
+        //
         usersAdapter.submitList(usersWithRepos) {
             if (isRefreshing) {
                 recycler_view.scrollToPosition(0)

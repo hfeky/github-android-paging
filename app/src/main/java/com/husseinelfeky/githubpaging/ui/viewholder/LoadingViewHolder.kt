@@ -9,7 +9,7 @@ import com.husseinelfeky.githubpaging.common.NetworkState
 import com.husseinelfeky.githubpaging.common.Status
 import kotlinx.android.synthetic.main.item_loading.view.*
 
-class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class LoadingViewHolder(view: View): RecyclerView.ViewHolder(view) {
 
     fun bindTo(networkState: NetworkState?) {
         itemView.progress_bar.visibility = toVisibility(networkState?.status == Status.RUNNING)
