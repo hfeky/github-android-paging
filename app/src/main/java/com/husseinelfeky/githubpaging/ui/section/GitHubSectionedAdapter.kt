@@ -19,7 +19,7 @@ class GitHubSectionedAdapter: BaseSectionAdapter() {
             reposSections.map {
                 // Section exists -> Get section tag
                 if (it.id == tempSection.id) {
-                    // Add the items of the passed section to the already existing one
+                    // Add the items of the passed section to the already existing one.
                     it.addItemsToSection(tempSection.items)
                     updateSection(it)
                     return it.id

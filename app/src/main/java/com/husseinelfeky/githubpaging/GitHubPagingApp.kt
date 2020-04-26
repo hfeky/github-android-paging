@@ -13,9 +13,14 @@ class GitHubPagingApp : Application() {
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 
+    companion object {
+        lateinit var instance: GitHubPagingApp
+    }
+
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
+        instance = this
         delayedInit()
     }
 

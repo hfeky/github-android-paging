@@ -2,6 +2,7 @@ package com.husseinelfeky.githubpaging.sectionedRecyclerView.bases
 
 import com.husseinelfeky.githubpaging.sectionedRecyclerView.Section
 import com.husseinelfeky.githubpaging.sectionedRecyclerView.SectionParameters
+import com.husseinelfeky.githubpaging.utils.removeDuplicates
 
 @Suppress("unused")
 abstract class BaseSection<T: DiffUtilable>(val items: MutableList<T>, sectionParameters: SectionParameters): Section(sectionParameters) {
@@ -17,7 +18,7 @@ abstract class BaseSection<T: DiffUtilable>(val items: MutableList<T>, sectionPa
     fun addItemsToSection(items: MutableList<T>) {
         this.items.addAll(items)
         // Remove duplicates from array
-        // items.groupBy { it.getUniqueIdentifier() }.entries.map { it.value.maxBy { it.date } }
+        items.removeDuplicates()
         oldItems = this.items
     }
 
@@ -26,6 +27,7 @@ abstract class BaseSection<T: DiffUtilable>(val items: MutableList<T>, sectionPa
      */
     fun addItemToSection(item: T) {
         items.add(item)
+        items.removeDuplicates()
         oldItems = items
     }
 

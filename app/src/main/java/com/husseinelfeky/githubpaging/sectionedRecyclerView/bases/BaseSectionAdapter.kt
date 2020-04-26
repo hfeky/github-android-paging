@@ -8,7 +8,7 @@ import com.husseinelfeky.githubpaging.sectionedRecyclerView.SectionedRecyclerVie
 open class BaseSectionAdapter: SectionedRecyclerViewAdapter() {
 
     /**
-     * Add items to section with name.
+     * Add items to section.
      */
     fun <T: DiffUtilable>updateSection(section: BaseSection<T>) {
         val diffResult = DiffUtil.calculateDiff(SectionItemDiffUtils<T>(section.oldItems, section.items))
