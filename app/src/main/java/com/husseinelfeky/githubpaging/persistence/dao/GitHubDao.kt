@@ -32,10 +32,10 @@ interface GitHubDao {
     fun deleteAllReposRx(): Completable
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUsersRx(groupAList: List<User>): Completable
+    fun insertUserRx(user: User): Completable
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertReposRx(gitHubRepo: GitHubRepo): Completable
+    fun insertReposRx(gitHubRepos: List<GitHubRepo>): Completable
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User)
