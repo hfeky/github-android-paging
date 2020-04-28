@@ -9,6 +9,8 @@ import com.husseinelfeky.githubpaging.R
 import com.husseinelfeky.githubpaging.repository.FetchingRepo
 import com.husseinelfeky.githubpaging.ui.section.GitHubSectionedAdapter
 import com.husseinelfeky.githubpaging.ui.viewmodel.ReposViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_loading.*
 
@@ -71,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         // Fetch initial items
         fetchingRepo.getUsersWithRepos(1)
+            .onBackpressureBuffer(1024)
             .doOnSubscribe {
                 isLoading = true
                 showLoading()
@@ -86,19 +89,6 @@ class MainActivity : AppCompatActivity() {
                 hideLoading()
                 Log.e("FetchingError ", it.toString())
             })
-
-
-//            .doOnSuccess { usersWithRepos ->
-//                isLoading = false
-//                hideLoading()
-//                usersWithRepos.forEach {
-//                    sectionedAdapter.addSection(UserWithReposSection(it))
-//                }
-//            }
-//            .doOnError {
-//                isLoading = false
-//                hideLoading()
-//            }.subscribe()
     }
 
     private fun initObservables() {

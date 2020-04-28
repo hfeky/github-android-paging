@@ -1,8 +1,7 @@
 package com.husseinelfeky.githubpaging.repository
 
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -11,20 +10,19 @@ class FetchingRepo(
     private val gitHubUsersReposFetchingRepo: GitHubUsersReposFetchingRepo = GitHubUsersReposFetchingRepo()
 ) {
 
-    fun getUsersWithRepos(page: Int): Single<List<UserWithRepos>> {
+    fun getUsersWithRepos(page: Int): Flowable<List<UserWithRepos>> {
         return usersFetchingRepo
             .fetchItems(page = page)
             .toObservable()
-            // Converts the list of users into an Observable which emits each user in the list
-            .flatMap {
-                return@flatMap Observable.fromIterable(it)
+            .flatMapIterable {
+                it.map { user ->
+                    gitHubUsersReposFetchingRepo.fetchItems(user.userName, page = 1).doOnSuccess {
+                        print("User Repos")
+                    }
+                }
             }
-            // Fetch and save repos of each user
-            .flatMap {
-                return@flatMap gitHubUsersReposFetchingRepo.fetchItems(it.userName, page = 1).toObservable()
-            }
-            .doOnNext {
-                print("List")
+            .doOnComplete {
+                print("Completed")
             }
             .doOnError {
                 print("Error")

@@ -16,10 +16,11 @@ import com.husseinelfeky.githubpaging.sectionedRecyclerView.bases.DiffUtilable
         )
     ]
 )
-data class GitHubRepo (
+data class GitHubRepo(
     @PrimaryKey override val id: Long,
-    val userId: Long,
+    val userId: Long?,
     val name: String
 ) : PagingItem(), DiffUtilable {
-    override fun getUniqueIdentifier() = userId
+
+    override fun getUniqueIdentifier() = id
 }

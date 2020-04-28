@@ -1,5 +1,7 @@
 package com.husseinelfeky.githubpaging
 
+import android.annotation.SuppressLint
+import android.util.Log
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -9,47 +11,24 @@ interface IOfflineCaching<Entity> {
         return fetchItems(forceNetwork = forceNetwork, page = 0)
     }
 
+    @SuppressLint("LogNotTimber")
     fun fetchItems(
         vararg params: Any,
         forceNetwork: Boolean = false,
         page: Int
     ): Single<List<Entity>> {
-        var fetchedList: List<Entity> = listOf()
         if (!forceNetwork) {
-            return fetchItemsFromDB(params, page = page)
+            return this
+                .fetchItemsFromDB(*params, page = page)
                 .flatMap {
                     if (it.isEmpty()) {
-                      //  val emptyDataError = Exception("Empty Table")
-                      //  return@flatMap Single.error<List<Entity>>(emptyDataError)
-                        return@flatMap  this.fetchItemsFromNetwork(params, page = page)
-                            .doOnError {
-                                println("Error Here!")
-                            }
-                            .flatMapCompletable {
-                                fetchedList = it
-                                return@flatMapCompletable this.saveItemsToLocalDB(it)
-                            }.andThen(Single.just(fetchedList))
+                        return@flatMap this.fetchAndSave(*params, page = page)
                     }
+                    // If local database items exists, return them.
                     return@flatMap Single.just(it)
                 }
-                // Fix this
-//                .doOnError {
-//                    this.fetchItemsFromNetwork(params, page = page)
-//                        .doOnError {
-//                            println("Hopa")
-//                        }
-//                        .flatMapCompletable {
-//                            fetchedList = it
-//                            return@flatMapCompletable this.saveItemsToLocalDB(it)
-//                        }.andThen(Single.just(fetchedList))
-//                }
         }
-        return fetchItemsFromNetwork(params, page = page)
-            .flatMapCompletable {
-                fetchedList = it
-                return@flatMapCompletable this.saveItemsToLocalDB(it)
-            }
-            .andThen(Single.just(fetchedList))
+        return this.fetchAndSave(*params, page = page)
     }
 
     fun fetchItemsFromNetwork(vararg params: Any, page: Int): Single<List<Entity>>
@@ -59,4 +38,21 @@ interface IOfflineCaching<Entity> {
     fun saveItemsToLocalDB(itemsList: List<Entity>): Completable
 
     fun deleteAllCachedItems(): Completable
+
+    @SuppressLint("LogNotTimber")
+    private fun fetchAndSave(vararg params: Any, page: Int): Single<List<Entity>> {
+        return this
+            .fetchItemsFromNetwork(*params, page = page)
+            .doOnError { throwable ->
+                Log.e("IOfflineCaching", "Fetching from network error ", throwable)
+            }
+            .flatMap { list ->
+                this.saveItemsToLocalDB(list)
+
+                    .doOnError { throwable ->
+                        Log.e("IOfflineCaching", "Saving to local database error ", throwable)
+                    }
+                    .andThen(Single.just(list))
+            }
+    }
 }
