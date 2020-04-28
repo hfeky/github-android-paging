@@ -1,6 +1,7 @@
 package com.husseinelfeky.githubpaging.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -44,47 +45,60 @@ class MainActivity : AppCompatActivity() {
         recycler_view.adapter = sectionedAdapter
 
         // Add bottom boundary callback
-        recycler_view.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (!isLoading) {
-                        // Fetch next page if it is not already fetching
-                        fetchingRepo.getUsersWithRepos(currentPage++)
-                            .doOnSubscribe {
-                                isLoading = true
-                            }
-                            .doOnSuccess { usersWithRepos ->
-                                isLoading = false
-                                usersWithRepos.forEach {
-                                    sectionedAdapter.addSection(UserWithReposSection(it))
-                                }
-                            }
-                            .doOnError {
-                                isLoading = false
-                            }.subscribe()
-                    }
-                }
-            }
-        })
+//        recycler_view.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+//            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+//                super.onScrollStateChanged(recyclerView, newState)
+//                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    if (!isLoading) {
+//                        // Fetch next page if it is not already fetching
+//                        fetchingRepo.getUsersWithRepos(currentPage++)
+//                            .doOnSubscribe {
+//                                isLoading = true
+//                            }
+//                            .doOnSuccess { usersWithRepos ->
+//                                isLoading = false
+//                                usersWithRepos.forEach {
+//                                    sectionedAdapter.addSection(UserWithReposSection(it))
+//                                }
+//                            }
+//                            .doOnError {
+//                                isLoading = false
+//                            }.subscribe()
+//                    }
+//                }
+//            }
+//        })
 
         // Fetch initial items
-        fetchingRepo.getUsersWithRepos(currentPage++)
+        fetchingRepo.getUsersWithRepos(1)
             .doOnSubscribe {
                 isLoading = true
                 showLoading()
             }
-            .doOnSuccess { usersWithRepos ->
+            .subscribe({
                 isLoading = false
                 hideLoading()
-                usersWithRepos.forEach {
+                it.forEach {
                     sectionedAdapter.addSection(UserWithReposSection(it))
                 }
-            }
-            .doOnError {
+            }, {
                 isLoading = false
                 hideLoading()
-            }.subscribe()
+                Log.e("FetchingError ", it.toString())
+            })
+
+
+//            .doOnSuccess { usersWithRepos ->
+//                isLoading = false
+//                hideLoading()
+//                usersWithRepos.forEach {
+//                    sectionedAdapter.addSection(UserWithReposSection(it))
+//                }
+//            }
+//            .doOnError {
+//                isLoading = false
+//                hideLoading()
+//            }.subscribe()
     }
 
     private fun initObservables() {
