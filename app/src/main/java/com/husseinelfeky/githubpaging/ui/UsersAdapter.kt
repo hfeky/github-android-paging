@@ -12,6 +12,8 @@ import com.husseinelfeky.githubpaging.ui.viewholder.UserViewHolder
 
 class UsersAdapter : PagedListAdapter<UserWithRepos, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
 
+    private val recycledViewPool = RecyclerView.RecycledViewPool()
+
     private var networkState: NetworkState? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -25,7 +27,7 @@ class UsersAdapter : PagedListAdapter<UserWithRepos, RecyclerView.ViewHolder>(DI
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.item_user -> {
-                (holder as UserViewHolder).bind(getItem(position)!!)
+                (holder as UserViewHolder).bind(getItem(position)!!, recycledViewPool)
             }
             R.layout.item_loading -> {
                 (holder as LoadingViewHolder).bindTo(networkState)

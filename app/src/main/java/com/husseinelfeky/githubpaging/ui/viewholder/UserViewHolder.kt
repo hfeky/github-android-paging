@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.item_user.view.*
 
 class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-    fun bind(userWithRepos: UserWithRepos) {
+    fun bind(userWithRepos: UserWithRepos, recycledViewPool: RecyclerView.RecycledViewPool) {
         val user = userWithRepos.user
 
         itemView.user_name.text = user.userName
@@ -27,6 +27,7 @@ class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             .placeholder(R.drawable.placeholder_person)
             .into(itemView.user_photo)
 
+        itemView.rv_repos.setRecycledViewPool(recycledViewPool)
         itemView.rv_repos.adapter = ReposAdapter().apply {
             submitList(userWithRepos.repos)
         }
