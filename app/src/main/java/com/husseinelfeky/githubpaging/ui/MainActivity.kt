@@ -2,99 +2,136 @@ package com.husseinelfeky.githubpaging.ui
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.paging.PagedList
+import androidx.recyclerview.widget.RecyclerView
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.common.NetworkState
-import com.husseinelfeky.githubpaging.persistence.AppRoomDatabase.Companion.getDatabase
-import com.husseinelfeky.githubpaging.persistence.entities.GitHubRepo
-import com.husseinelfeky.githubpaging.persistence.entities.User
-import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
-import com.husseinelfeky.githubpaging.repository.ReposRepository
-import com.husseinelfeky.githubpaging.sectionedRecyclerView.Section
-import com.husseinelfeky.githubpaging.sectionedRecyclerView.SectionAdapter
+import com.husseinelfeky.githubpaging.repository.FetchingRepo
 import com.husseinelfeky.githubpaging.ui.section.GitHubSectionedAdapter
 import com.husseinelfeky.githubpaging.ui.viewmodel.ReposViewModel
-import com.husseinelfeky.githubpaging.ui.viewmodel.ReposViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_loading.*
 
-class MainActivity: AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ReposViewModel
 
     // private val usersAdapter = UsersAdapter()
-    private val usersAdapter = GitHubSectionedAdapter()
+    private val sectionedAdapter = GitHubSectionedAdapter()
     private var isInitialLoad = true
     private var isRefreshing = false
+
+    private var currentPage = 1
+    private var isLoading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        showLoading()
+//        showLoading()
         initAdapter()
-        initObservables()
+//        initObservables()
     }
 
     private fun initAdapter() {
-        val viewModelFactory = ReposViewModelFactory(ReposRepository(getDatabase(this).gitHubDao()))
-        viewModel = ViewModelProvider(this, viewModelFactory).get(ReposViewModel::class.java)
-        swipe_refresh.setOnRefreshListener {
-            isRefreshing = true
-            viewModel.invalidateDataSource()
-        }
-        recycler_view.adapter = usersAdapter
+//        val viewModelFactory = ReposViewModelFactory(ReposRepository(getDatabase(this).gitHubDao()))
+//        viewModel = ViewModelProvider(this, viewModelFactory).get(ReposViewModel::class.java)
+//        swipe_refresh.setOnRefreshListener {
+//            isRefreshing = true
+//            viewModel.invalidateDataSource()
+//        }
+        val fetchingRepo = FetchingRepo()
+
+        recycler_view.adapter = sectionedAdapter
+
+        // Add bottom boundary callback
+        recycler_view.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (!isLoading) {
+                        // Fetch next page if it is not already fetching
+                        fetchingRepo.getUsersWithRepos(currentPage++)
+                            .doOnSubscribe {
+                                isLoading = true
+                            }
+                            .doOnSuccess { usersWithRepos ->
+                                isLoading = false
+                                usersWithRepos.forEach {
+                                    sectionedAdapter.addSection(UserWithReposSection(it))
+                                }
+                            }
+                            .doOnError {
+                                isLoading = false
+                            }.subscribe()
+                    }
+                }
+            }
+        })
+
+        // Fetch initial items
+        fetchingRepo.getUsersWithRepos(currentPage++)
+            .doOnSubscribe {
+                isLoading = true
+                showLoading()
+            }
+            .doOnSuccess { usersWithRepos ->
+                isLoading = false
+                hideLoading()
+                usersWithRepos.forEach {
+                    sectionedAdapter.addSection(UserWithReposSection(it))
+                }
+            }
+            .doOnError {
+                isLoading = false
+                hideLoading()
+            }.subscribe()
     }
 
     private fun initObservables() {
-        // It only gets observed once on initial data load as it only observes
-        // the object reference itself but not the content inside.
-        viewModel.usersWithReposPagedList.observe(
-            this,
-            Observer { usersWithRepos ->
-                hideLoading()
-                updateUsersWithReposList(usersWithRepos)
-                usersAdapter.setNetworkState(NetworkState.LOADED)
-
-                empty_layout.visibility = if (usersWithRepos.isEmpty()) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
-
-                Toast.makeText(
-                    this@MainActivity,
-                    "${usersWithRepos.size} users initially loaded",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        )
-
-        viewModel.networkState.observe(this, Observer {
-            usersAdapter.setNetworkState(it)
-        })
-
-        viewModel.refreshState.observe(this, Observer {
-            swipe_refresh.isRefreshing = it == NetworkState.LOADING
-        })
+//        // It only gets observed once on initial data load as it only observes
+//        // the object reference itself but not the content inside.
+//        viewModel.usersWithReposPagedList.observe(
+//            this,
+//            Observer { usersWithRepos ->
+//                hideLoading()
+//                updateUsersWithReposList(usersWithRepos)
+////                sectionedAdapter.setNetworkState(NetworkState.LOADED)
+//
+//                empty_layout.visibility = if (usersWithRepos.isEmpty()) {
+//                    View.VISIBLE
+//                } else {
+//                    View.GONE
+//                }
+//
+//                Toast.makeText(
+//                    this@MainActivity,
+//                    "${usersWithRepos.size} users initially loaded",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//        )
+//
+//        viewModel.networkState.observe(this, Observer {
+//            sectionedAdapter.setNetworkState(it)
+//        })
+//
+//        viewModel.refreshState.observe(this, Observer {
+//            swipe_refresh.isRefreshing = it == NetworkState.LOADING
+//        })
     }
 
-    private fun updateUsersWithReposList(usersWithRepos: PagedList<UserWithRepos>) {
-        //
-        var section: UserWithReposSection? = null
-        usersAdapter.addSection(section)
-        //
-        usersAdapter.submitList(usersWithRepos) {
-            if (isRefreshing) {
-                recycler_view.scrollToPosition(0)
-                isRefreshing = false
-            }
-        }
-    }
+//    private fun updateUsersWithReposList(usersWithRepos: PagedList<UserWithRepos>) {
+//        //
+//        var section: UserWithReposSection? = null
+//        sectionedAdapter.addSection(section)
+//        //
+//        sectionedAdapter.submitList(usersWithRepos) {
+//            if (isRefreshing) {
+//                recycler_view.scrollToPosition(0)
+//                isRefreshing = false
+//            }
+//        }
+//    }
 
     private fun showLoading() {
         if (isInitialLoad) {
@@ -109,6 +146,6 @@ class MainActivity: AppCompatActivity() {
             recycler_view.visibility = View.VISIBLE
             isInitialLoad = false
         }
-        viewModel.refreshState.postValue(NetworkState.LOADED)
+//        viewModel.refreshState.postValue(NetworkState.LOADED)
     }
 }
