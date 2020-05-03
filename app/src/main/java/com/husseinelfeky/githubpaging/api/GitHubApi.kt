@@ -16,15 +16,15 @@ interface GitHubApi {
     suspend fun getRepositories(@Path("user_name") userName: String): List<GitHubRepo>
 
     @GET("users")
-    fun getUsersRx(@Query("page") page: Int, @Query("per_page") perPage: Int = 10): Single<List<User>>
+    fun getUsersRx(@Query("page") page: Int, @Query("per_page") perPage: Int = 2): Single<List<User>>
 
     @GET("users/{user_name}/repos")
-    fun getGitHubReposRx(
+    fun getRepositoriesRx(
         @Path("user_name") userName: String,
         @Query("page") page: Int,
         @Query("per_page") perPage: Int = 10
     ): Single<List<GitHubRepo>>
 
     @GET("users/{user_name}/repos")
-    fun getRepositoriesRx(@Path("user_name") userName: String): Single<List<GitHubRepo>>
+    fun getAllRepositoriesRx(@Path("user_name") userName: String): Single<List<GitHubRepo>>
 }

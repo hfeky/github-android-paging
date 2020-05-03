@@ -8,9 +8,8 @@ class GitHubReposFetchingRepo : IOfflineCaching<GitHubRepo> {
     private val db = UserWithReposDataSource.gitHubDao
 
     override fun fetchItemsFromNetwork(vararg params: Any, page: Int) =
-        UserWithReposDataSource.gitHubApi.getGitHubReposRx(
-            userName = params.first().toString(),
-            page = page
+        UserWithReposDataSource.gitHubApi.getAllRepositoriesRx(
+            userName = params.first().toString()
         )
 
     override fun fetchItemsFromDB(vararg params: Any, page: Int) = db.getReposRx()

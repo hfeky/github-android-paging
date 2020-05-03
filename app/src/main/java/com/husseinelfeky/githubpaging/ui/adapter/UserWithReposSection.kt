@@ -40,7 +40,9 @@ class UserWithReposSection(private val userWithRepos: UserWithRepos) : BaseSecti
                 headerLayout = R.layout.item_user,
                 childLayout = R.layout.item_repo
             )
-                .emptyResourceId(R.layout.layout_empty_repos)
+//                .loadingResourceId(R.layout.item_loading)
+//                .emptyResourceId(R.layout.layout_empty_repos)
+//                .failedResourceId(R.layout.layout_unknown_error)
                 .build()
         }
     }

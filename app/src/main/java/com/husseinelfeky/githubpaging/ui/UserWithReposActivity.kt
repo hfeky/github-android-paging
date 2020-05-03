@@ -3,8 +3,9 @@ package com.husseinelfeky.githubpaging.ui
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.ViewModelProvider
 import com.husseinelfeky.githubpaging.R
+import com.husseinelfeky.githubpaging.common.utils.setOnBottomBoundaryReachedCallback
 import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
 import com.husseinelfeky.githubpaging.ui.adapter.UserWithReposAdapter
 import com.husseinelfeky.githubpaging.ui.adapter.UserWithReposSection
@@ -16,67 +17,65 @@ import timber.log.Timber
 class UserWithReposActivity : AppCompatActivity() {
 
     private lateinit var viewModel: UserWithReposViewModel
-
     private val compositeDisposable = CompositeDisposable()
 
     private val sectionedAdapter = UserWithReposAdapter()
-    private var isRefreshing = false
 
     private var currentPage = 1
     private var isLoading = false
+    private var isRefreshing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-//        showLoading()
+        initViewModel()
         initAdapter()
-//        initObservables()
+        initObservers()
+        initListeners()
     }
 
-    private fun initAdapter() {
-//        swipe_refresh.setOnRefreshListener {
-//            isRefreshing = true
-//            viewModel.invalidateDataSource()
-//        }
+    private fun initViewModel() {
+        viewModel = ViewModelProvider(
+            this,
+            UserWithReposViewModel.Factory(
+                UserWithReposRepository()
+            )
+        ).get(UserWithReposViewModel::class.java)
+    }
 
+    // TODO: Create MergeAdapter to show list bottom progress bar.
+    private fun initAdapter() {
         recycler_view.adapter = sectionedAdapter
 
-        val fetchingRepo = UserWithReposRepository()
-
         // Add bottom boundary callback.
-        recycler_view.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (!isLoading) {
-                        // Fetch next page if it is not already fetching.
-                        compositeDisposable.add(
-                            fetchingRepo.getUsersWithRepos(currentPage++)
-                                .doOnSubscribe {
-                                    isLoading = true
-                                }
-                                .subscribe({ usersWithRepos ->
-                                    isLoading = false
-                                    usersWithRepos.forEach {
-                                        sectionedAdapter.addSection(
-                                            UserWithReposSection(
-                                                it
-                                            )
-                                        )
-                                    }
-                                }, {
-                                    isLoading = false
-                                })
-                        )
-                    }
-                }
+        recycler_view.setOnBottomBoundaryReachedCallback {
+            if (!isLoading) {
+                // Fetch next page if it is not already fetching.
+                compositeDisposable.add(
+                    viewModel.getUsersWithRepos(currentPage++)
+                        .doOnSubscribe {
+                            isLoading = true
+                        }
+                        .subscribe({ usersWithRepos ->
+                            isLoading = false
+                            usersWithRepos.forEach { userWithRepos ->
+                                sectionedAdapter.addSection(
+                                    UserWithReposSection(
+                                        userWithRepos
+                                    )
+                                )
+                            }
+                        }, {
+                            isLoading = false
+                        })
+                )
             }
-        })
+        }
 
         // Fetch initial items
         compositeDisposable.add(
-            fetchingRepo.getUsersWithRepos(1)
+            viewModel.getUsersWithRepos(1)
                 .onBackpressureBuffer(1024)
                 .doOnSubscribe {
                     isLoading = true
@@ -85,10 +84,10 @@ class UserWithReposActivity : AppCompatActivity() {
                 .subscribe({ usersWithRepos ->
                     isLoading = false
                     hideLoading()
-                    usersWithRepos.forEach {
+                    usersWithRepos.forEach { userWithRepos ->
                         sectionedAdapter.addSection(
                             UserWithReposSection(
-                                it
+                                userWithRepos
                             )
                         )
                     }
@@ -100,7 +99,8 @@ class UserWithReposActivity : AppCompatActivity() {
         )
     }
 
-    private fun initObservables() {
+    // TODO: Implement loading/refresh observables.
+    private fun initObservers() {
 //        viewModel.networkState.observe(this, Observer {
 //            sectionedAdapter.setNetworkState(it)
 //        })
@@ -110,18 +110,12 @@ class UserWithReposActivity : AppCompatActivity() {
 //        })
     }
 
-//    private fun updateUsersWithReposList(usersWithRepos: PagedList<UserWithRepos>) {
-//        //
-//        var section: UserWithReposSection? = null
-//        sectionedAdapter.addSection(section)
-//        //
-//        sectionedAdapter.submitList(usersWithRepos) {
-//            if (isRefreshing) {
-//                recycler_view.scrollToPosition(0)
-//                isRefreshing = false
-//            }
-//        }
-//    }
+    private fun initListeners() {
+        swipe_refresh.setOnRefreshListener {
+            isRefreshing = true
+            viewModel.invalidateDataSource()
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()
