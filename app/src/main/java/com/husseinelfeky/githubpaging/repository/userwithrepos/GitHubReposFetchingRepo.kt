@@ -1,9 +1,10 @@
 package com.husseinelfeky.githubpaging.repository.userwithrepos
 
-import com.husseinelfeky.githubpaging.common.interfaces.IOfflineCaching
+import com.husseinelfeky.githubpaging.common.paging.base.IOfflineCaching
 import com.husseinelfeky.githubpaging.persistence.entities.GitHubRepo
 
-class GitHubReposFetchingRepo : IOfflineCaching<GitHubRepo> {
+class GitHubReposFetchingRepo :
+    IOfflineCaching<GitHubRepo> {
 
     private val db = UserWithReposDataSource.gitHubDao
 

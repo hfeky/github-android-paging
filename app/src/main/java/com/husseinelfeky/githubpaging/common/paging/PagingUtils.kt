@@ -1,4 +1,4 @@
-package com.husseinelfeky.githubpaging.common.utils
+package com.husseinelfeky.githubpaging.common.paging
 
 import androidx.recyclerview.widget.RecyclerView
 

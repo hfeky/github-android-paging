@@ -22,9 +22,9 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <include
-        layout="@layout/item_loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/error_layout"
+        layout="@layout/layout_unknown_error"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,6 +39,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/app_bar"
         tools:visibility="visible" />
+
+    <include
+        layout="@layout/item_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app_bar" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"

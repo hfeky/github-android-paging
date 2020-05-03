@@ -2,6 +2,9 @@
 
     <string name="app_name">GitHubPaging</string>
 
+    <!-- Common Strings -->
+    <string name="retry">Retry</string>
+
     <!-- Main Screen -->
     <string name="no_repositories_available">No repositories available.</string>
     <string name="unknown_error_occurred">An unknown error occurred.</string>

@@ -1,4 +1,4 @@
-package com.husseinelfeky.githubpaging.common.interfaces
+package com.husseinelfeky.githubpaging.common.paging.base
 
 import io.reactivex.Completable
 import io.reactivex.Single

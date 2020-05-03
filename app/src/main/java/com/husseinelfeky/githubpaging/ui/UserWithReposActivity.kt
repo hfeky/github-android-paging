@@ -3,9 +3,14 @@ package com.husseinelfeky.githubpaging.ui
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.MergeAdapter
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.common.utils.setOnBottomBoundaryReachedCallback
+import com.husseinelfeky.githubpaging.common.paging.NetworkStateAdapter
+import com.husseinelfeky.githubpaging.common.paging.setOnBottomBoundaryReachedCallback
+import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
+import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
 import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
 import com.husseinelfeky.githubpaging.ui.adapter.UserWithReposAdapter
 import com.husseinelfeky.githubpaging.ui.adapter.UserWithReposSection
@@ -20,18 +25,19 @@ class UserWithReposActivity : AppCompatActivity() {
     private val compositeDisposable = CompositeDisposable()
 
     private val sectionedAdapter = UserWithReposAdapter()
+    private val networkStateAdapter = NetworkStateAdapter { viewModel.retry() }
 
     private var currentPage = 1
-    private var isLoading = false
     private var isRefreshing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
         initViewModel()
-        initAdapter()
         initObservers()
+        initAdapter()
         initListeners()
     }
 
@@ -44,21 +50,53 @@ class UserWithReposActivity : AppCompatActivity() {
         ).get(UserWithReposViewModel::class.java)
     }
 
-    // TODO: Create MergeAdapter to show list bottom progress bar.
+    private fun initObservers() {
+        viewModel.pagedListState.observe(this, Observer {
+            when (it) {
+                is PagedListState.Loading -> {
+                    hideAllPagedListStateViews()
+                    progress_bar.visibility = View.VISIBLE
+                }
+                is PagedListState.Loaded -> {
+                    hideAllPagedListStateViews()
+                    recycler_view.visibility = View.VISIBLE
+                }
+                is PagedListState.Empty -> {
+                    hideAllPagedListStateViews()
+                    empty_layout.visibility = View.VISIBLE
+                }
+                is PagedListState.Error -> {
+                    hideAllPagedListStateViews()
+                    error_layout.visibility = View.VISIBLE
+                }
+            }
+        })
+
+        viewModel.networkState.observe(this, Observer {
+            networkStateAdapter.networkState = it
+        })
+
+        // TODO: Implement refresh observer.
+//        viewModel.refreshState.observe(this, Observer {
+//            swipe_refresh.isRefreshing = it == NetworkState.LOADING
+//        })
+    }
+
     private fun initAdapter() {
-        recycler_view.adapter = sectionedAdapter
+        recycler_view.adapter = MergeAdapter(sectionedAdapter, networkStateAdapter)
 
         // Add bottom boundary callback.
         recycler_view.setOnBottomBoundaryReachedCallback {
-            if (!isLoading) {
+            if (viewModel.networkState.value !is NetworkState.Loading) {
                 // Fetch next page if it is not already fetching.
+                // TODO: Move logic to ViewModel.
                 compositeDisposable.add(
                     viewModel.getUsersWithRepos(currentPage++)
                         .doOnSubscribe {
-                            isLoading = true
+                            viewModel.networkState.postValue(NetworkState.Loading)
                         }
                         .subscribe({ usersWithRepos ->
-                            isLoading = false
+                            viewModel.networkState.postValue(NetworkState.Loaded)
                             usersWithRepos.forEach { userWithRepos ->
                                 sectionedAdapter.addSection(
                                     UserWithReposSection(
@@ -67,47 +105,38 @@ class UserWithReposActivity : AppCompatActivity() {
                                 )
                             }
                         }, {
-                            isLoading = false
+                            viewModel.networkState.postValue(NetworkState.Error(it))
                         })
                 )
             }
         }
 
-        // Fetch initial items
+        // Fetch initial items.
+        // TODO: Move logic to ViewModel.
         compositeDisposable.add(
             viewModel.getUsersWithRepos(1)
                 .onBackpressureBuffer(1024)
                 .doOnSubscribe {
-                    isLoading = true
-                    showLoading()
+                    viewModel.pagedListState.postValue(PagedListState.Loading)
                 }
                 .subscribe({ usersWithRepos ->
-                    isLoading = false
-                    hideLoading()
-                    usersWithRepos.forEach { userWithRepos ->
-                        sectionedAdapter.addSection(
-                            UserWithReposSection(
-                                userWithRepos
+                    if (usersWithRepos.isEmpty()) {
+                        viewModel.pagedListState.postValue(PagedListState.Empty)
+                    } else {
+                        viewModel.pagedListState.postValue(PagedListState.Loaded)
+                        usersWithRepos.forEach { userWithRepos ->
+                            sectionedAdapter.addSection(
+                                UserWithReposSection(
+                                    userWithRepos
+                                )
                             )
-                        )
+                        }
                     }
                 }, {
-                    isLoading = false
-                    hideLoading()
+                    viewModel.pagedListState.postValue(PagedListState.Error(it))
                     Timber.e(it.toString())
                 })
         )
-    }
-
-    // TODO: Implement loading/refresh observables.
-    private fun initObservers() {
-//        viewModel.networkState.observe(this, Observer {
-//            sectionedAdapter.setNetworkState(it)
-//        })
-//
-//        viewModel.refreshState.observe(this, Observer {
-//            swipe_refresh.isRefreshing = it == NetworkState.LOADING
-//        })
     }
 
     private fun initListeners() {
@@ -122,14 +151,10 @@ class UserWithReposActivity : AppCompatActivity() {
         compositeDisposable.clear()
     }
 
-    private fun showLoading() {
-        recycler_view.visibility = View.GONE
-        progress_bar.visibility = View.VISIBLE
-    }
-
-    private fun hideLoading() {
+    private fun hideAllPagedListStateViews() {
+        error_layout.visibility = View.GONE
+        empty_layout.visibility = View.GONE
         progress_bar.visibility = View.GONE
-        recycler_view.visibility = View.VISIBLE
-//        viewModel.refreshState.postValue(NetworkState.LOADED)
+        recycler_view.visibility = View.GONE
     }
 }
