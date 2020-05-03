@@ -4,6 +4,7 @@ import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 class UserWithReposRepository(
     private val usersFetchingRepo: GitHubUsersFetchingRepo = GitHubUsersFetchingRepo(),
@@ -17,15 +18,15 @@ class UserWithReposRepository(
             .flatMapIterable {
                 it.map { user ->
                     gitHubReposFetchingRepo.fetchItems(user.userName, page = 1).doOnSuccess {
-                        print("User Repos")
+                        Timber.i("Fetched ${it.size} user repos")
                     }
                 }
             }
             .doOnComplete {
-                print("Completed")
+                Timber.i("Completed")
             }
             .doOnError {
-                print("Error")
+                Timber.i("Error")
             }
             // == toCompletable
             .ignoreElements()

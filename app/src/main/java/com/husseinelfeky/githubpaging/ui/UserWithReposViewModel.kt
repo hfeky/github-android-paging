@@ -1,34 +1,62 @@
 package com.husseinelfeky.githubpaging.ui
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.husseinelfeky.githubpaging.common.paging.base.PagingViewModel
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
+import com.husseinelfeky.githubpaging.common.utils.addToCompositeDisposable
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
-import io.reactivex.Flowable
+import timber.log.Timber
 
-// TODO: Make all states return LiveData instead of MutableLiveData.
-class UserWithReposViewModel(private val fetchingRepo: UserWithReposRepository) : ViewModel() {
+class UserWithReposViewModel(
+    private val fetchingRepo: UserWithReposRepository
+) : PagingViewModel<UserWithRepos>() {
 
-    val pagedListState = MutableLiveData<PagedListState>()
-
-    val networkState = MutableLiveData<NetworkState>()
-
-    // TODO: Implement refresh observable.
-    val refreshState = MutableLiveData<NetworkState>()
-
-    fun getUsersWithRepos(page: Int): Flowable<List<UserWithRepos>> {
-        return fetchingRepo.getUsersWithRepos(page)
+    override fun fetchInitialItems(onItemsLoadedCallback: (items: List<UserWithRepos>) -> Unit) {
+        fetchingRepo.getUsersWithRepos(1)
+            .onBackpressureBuffer(1024)
+            .doOnSubscribe {
+                _pagedListState.postValue(PagedListState.Loading)
+            }
+            .subscribe({ usersWithRepos ->
+                currentPage++
+                if (usersWithRepos.isEmpty()) {
+                    _pagedListState.postValue(PagedListState.Empty)
+                } else {
+                    _pagedListState.postValue(PagedListState.Loaded)
+                    onItemsLoadedCallback(usersWithRepos)
+                }
+            }, {
+                _pagedListState.postValue(PagedListState.Error(it))
+                Timber.e(it)
+            })
+            .addToCompositeDisposable(compositeDisposable)
     }
 
-    fun retry() {
-        // TODO: Implement retry logic.
+    override fun fetchNextPage(onItemsLoadedCallback: (items: List<UserWithRepos>) -> Unit) {
+        // Fetch next page if it is not already fetching.
+        if (_networkState.value !is NetworkState.Loading) {
+            fetchingRepo.getUsersWithRepos(currentPage)
+                .doOnSubscribe {
+                    _networkState.postValue(NetworkState.Loading)
+                }
+                .subscribe({ usersWithRepos ->
+                    currentPage++
+                    _networkState.postValue(NetworkState.Loaded)
+                    onItemsLoadedCallback(usersWithRepos)
+                }, {
+                    _networkState.postValue(NetworkState.Error(it))
+                    Timber.e(it)
+                })
+                .addToCompositeDisposable(compositeDisposable)
+        }
     }
 
-    fun invalidateDataSource() {
+    override fun invalidateDataSource() {
         // TODO: Implement refresh logic.
+        _refreshState.postValue(NetworkState.Loading)
     }
 
     @Suppress("UNCHECKED_CAST")

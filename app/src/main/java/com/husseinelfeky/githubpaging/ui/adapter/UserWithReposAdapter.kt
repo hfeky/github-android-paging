@@ -2,6 +2,7 @@ package com.husseinelfeky.githubpaging.ui.adapter
 
 import com.husseinelfeky.githubpaging.common.sectionedrecyclerview.Section
 import com.husseinelfeky.githubpaging.common.sectionedrecyclerview.bases.BaseSectionAdapter
+import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 
 class UserWithReposAdapter : BaseSectionAdapter() {
 
@@ -25,5 +26,12 @@ class UserWithReposAdapter : BaseSectionAdapter() {
             }
         }
         throw IllegalArgumentException("Invalid section")
+    }
+
+    fun appendList(usersWithRepos: List<UserWithRepos>) {
+        usersWithRepos.forEach { userWithRepos ->
+            addSection(UserWithReposSection(userWithRepos))
+        }
+        notifyDataSetChanged()
     }
 }

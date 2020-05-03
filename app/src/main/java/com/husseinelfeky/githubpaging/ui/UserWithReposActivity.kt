@@ -2,6 +2,7 @@ package com.husseinelfeky.githubpaging.ui
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -13,22 +14,19 @@ import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
 import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
 import com.husseinelfeky.githubpaging.ui.adapter.UserWithReposAdapter
-import com.husseinelfeky.githubpaging.ui.adapter.UserWithReposSection
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_loading.*
-import timber.log.Timber
 
 class UserWithReposActivity : AppCompatActivity() {
 
     private lateinit var viewModel: UserWithReposViewModel
-    private val compositeDisposable = CompositeDisposable()
 
     private val sectionedAdapter = UserWithReposAdapter()
-    private val networkStateAdapter = NetworkStateAdapter { viewModel.retry() }
-
-    private var currentPage = 1
-    private var isRefreshing = false
+    private val networkStateAdapter = NetworkStateAdapter {
+        viewModel.retryFetchingLastPage {
+            sectionedAdapter.appendList(it)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,10 +74,9 @@ class UserWithReposActivity : AppCompatActivity() {
             networkStateAdapter.networkState = it
         })
 
-        // TODO: Implement refresh observer.
-//        viewModel.refreshState.observe(this, Observer {
-//            swipe_refresh.isRefreshing = it == NetworkState.LOADING
-//        })
+        viewModel.refreshState.observe(this, Observer {
+            swipe_refresh.isRefreshing = it == NetworkState.Loading
+        })
     }
 
     private fun initAdapter() {
@@ -87,68 +84,31 @@ class UserWithReposActivity : AppCompatActivity() {
 
         // Add bottom boundary callback.
         recycler_view.setOnBottomBoundaryReachedCallback {
-            if (viewModel.networkState.value !is NetworkState.Loading) {
-                // Fetch next page if it is not already fetching.
-                // TODO: Move logic to ViewModel.
-                compositeDisposable.add(
-                    viewModel.getUsersWithRepos(currentPage++)
-                        .doOnSubscribe {
-                            viewModel.networkState.postValue(NetworkState.Loading)
-                        }
-                        .subscribe({ usersWithRepos ->
-                            viewModel.networkState.postValue(NetworkState.Loaded)
-                            usersWithRepos.forEach { userWithRepos ->
-                                sectionedAdapter.addSection(
-                                    UserWithReposSection(
-                                        userWithRepos
-                                    )
-                                )
-                            }
-                        }, {
-                            viewModel.networkState.postValue(NetworkState.Error(it))
-                        })
-                )
+            viewModel.fetchNextPage {
+                sectionedAdapter.appendList(it)
+                Toast.makeText(
+                    this,
+                    "${sectionedAdapter.itemCount} items loaded",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
         // Fetch initial items.
-        // TODO: Move logic to ViewModel.
-        compositeDisposable.add(
-            viewModel.getUsersWithRepos(1)
-                .onBackpressureBuffer(1024)
-                .doOnSubscribe {
-                    viewModel.pagedListState.postValue(PagedListState.Loading)
-                }
-                .subscribe({ usersWithRepos ->
-                    if (usersWithRepos.isEmpty()) {
-                        viewModel.pagedListState.postValue(PagedListState.Empty)
-                    } else {
-                        viewModel.pagedListState.postValue(PagedListState.Loaded)
-                        usersWithRepos.forEach { userWithRepos ->
-                            sectionedAdapter.addSection(
-                                UserWithReposSection(
-                                    userWithRepos
-                                )
-                            )
-                        }
-                    }
-                }, {
-                    viewModel.pagedListState.postValue(PagedListState.Error(it))
-                    Timber.e(it.toString())
-                })
-        )
+        viewModel.fetchInitialItems {
+            sectionedAdapter.appendList(it)
+            Toast.makeText(
+                this,
+                "${sectionedAdapter.itemCount} items loaded",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     private fun initListeners() {
         swipe_refresh.setOnRefreshListener {
-            isRefreshing = true
             viewModel.invalidateDataSource()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.clear()
     }
 
     private fun hideAllPagedListStateViews() {
