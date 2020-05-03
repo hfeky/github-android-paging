@@ -3,8 +3,8 @@ package com.husseinelfeky.githubpaging.persistence.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.husseinelfeky.githubpaging.common.sectionedrecyclerview.bases.DiffUtilable
 import com.husseinelfeky.githubpaging.models.PagingItem
-import com.husseinelfeky.githubpaging.sectionedRecyclerView.bases.DiffUtilable
 
 @Entity(
     tableName = "repositories",

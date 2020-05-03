@@ -8,15 +8,12 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
-import com.husseinelfeky.githubpaging.ui.ReposAdapter
+import com.husseinelfeky.githubpaging.persistence.entities.User
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class UserViewHolder(view: View): RecyclerView.ViewHolder(view) {
+class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-    fun bind(userWithRepos: UserWithRepos) {
-        val user = userWithRepos.user
-
+    fun bind(user: User) {
         itemView.user_name.text = user.userName
         itemView.user_id.text = user.id.toString()
 
@@ -26,10 +23,6 @@ class UserViewHolder(view: View): RecyclerView.ViewHolder(view) {
             .transition(DrawableTransitionOptions.withCrossFade(250))
             .placeholder(R.drawable.placeholder_person)
             .into(itemView.user_photo)
-
-        itemView.rv_repos.adapter = ReposAdapter().apply {
-            submitList(userWithRepos.repos)
-        }
     }
 
     companion object {

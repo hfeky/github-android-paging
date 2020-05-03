@@ -5,11 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.common.NetworkState
-import com.husseinelfeky.githubpaging.common.Status
+import com.husseinelfeky.githubpaging.common.utils.NetworkState
+import com.husseinelfeky.githubpaging.common.utils.Status
 import kotlinx.android.synthetic.main.item_loading.view.*
 
-class LoadingViewHolder(view: View): RecyclerView.ViewHolder(view) {
+class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     fun bindTo(networkState: NetworkState?) {
         itemView.progress_bar.visibility = toVisibility(networkState?.status == Status.RUNNING)
