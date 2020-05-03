@@ -1,7 +1,7 @@
 package com.husseinelfeky.githubpaging.api
 
 import com.husseinelfeky.githubpaging.BuildConfig
-import com.husseinelfeky.githubpaging.api.adapters.GitHubRepoJsonAdapter
+import com.husseinelfeky.githubpaging.api.adapter.GitHubRepoJsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Interceptor
@@ -26,8 +26,8 @@ object RetrofitClient {
                 .build()
 
             val moshi = Moshi.Builder()
-                .add(KotlinJsonAdapterFactory())
                 .add(GitHubRepoJsonAdapter())
+                .add(KotlinJsonAdapterFactory())
                 .build()
 
             retrofit = Retrofit.Builder()

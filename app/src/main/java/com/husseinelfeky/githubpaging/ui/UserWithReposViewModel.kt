@@ -16,7 +16,6 @@ class UserWithReposViewModel(
 
     override fun fetchInitialItems(onItemsLoadedCallback: (items: List<UserWithRepos>) -> Unit) {
         fetchingRepo.getUsersWithRepos(1)
-            .onBackpressureBuffer(1024)
             .doOnSubscribe {
                 _pagedListState.postValue(PagedListState.Loading)
             }

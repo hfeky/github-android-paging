@@ -17,16 +17,20 @@ class UserWithReposRepository(
             .toObservable()
             .flatMapIterable {
                 it.map { user ->
-                    gitHubReposFetchingRepo.fetchItems(user.userName, page = 1).doOnSuccess {
-                        Timber.i("Fetched ${it.size} user repos")
-                    }
+                    gitHubReposFetchingRepo.fetchItems(user.userName, page = 1)
+                        .doOnSuccess {
+                            Timber.i("Fetched ${it.size} user repos")
+                        }.doOnError {
+                            Timber.e(it)
+                        }.subscribeOn(Schedulers.io())
+                        .subscribe()
                 }
             }
             .doOnComplete {
-                Timber.i("Completed")
+                Timber.i("Fetching completed")
             }
             .doOnError {
-                Timber.i("Error")
+                Timber.e(it)
             }
             // == toCompletable
             .ignoreElements()

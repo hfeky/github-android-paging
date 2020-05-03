@@ -1,4 +1,4 @@
-package com.husseinelfeky.githubpaging.common.paging
+package com.husseinelfeky.githubpaging.common.paging.adapter
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +22,7 @@ class NetworkStateAdapter(
                 } else if (displayOldItem && displayNewItem) {
                     notifyItemChanged(0)
                 }
+
                 field = networkState
             }
         }
@@ -39,6 +40,6 @@ class NetworkStateAdapter(
     override fun getItemCount(): Int = if (displayNetworkStateAsItem(networkState)) 1 else 0
 
     private fun displayNetworkStateAsItem(networkState: NetworkState): Boolean {
-        return this.networkState is NetworkState.Loading || this.networkState is NetworkState.Error
+        return networkState is NetworkState.Loading || networkState is NetworkState.Error
     }
 }

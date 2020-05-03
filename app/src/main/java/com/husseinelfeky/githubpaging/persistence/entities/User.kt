@@ -2,7 +2,6 @@ package com.husseinelfeky.githubpaging.persistence.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.husseinelfeky.githubpaging.common.sectionedrecyclerview.bases.DiffUtilable
 import com.husseinelfeky.githubpaging.models.PagingItem
 import com.squareup.moshi.Json
 
@@ -13,7 +12,4 @@ data class User(
     val userName: String,
     @Json(name = "avatar_url")
     val avatarUrl: String
-) : PagingItem(), DiffUtilable {
-
-    override fun getUniqueIdentifier() = id
-}
+) : PagingItem()

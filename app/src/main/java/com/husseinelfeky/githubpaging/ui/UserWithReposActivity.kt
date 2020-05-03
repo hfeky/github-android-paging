@@ -8,12 +8,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.MergeAdapter
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.common.paging.NetworkStateAdapter
+import com.husseinelfeky.githubpaging.common.paging.adapter.NetworkStateAdapter
 import com.husseinelfeky.githubpaging.common.paging.setOnBottomBoundaryReachedCallback
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
 import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
-import com.husseinelfeky.githubpaging.ui.adapter.UserWithReposAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_loading.*
 
@@ -21,12 +20,13 @@ class UserWithReposActivity : AppCompatActivity() {
 
     private lateinit var viewModel: UserWithReposViewModel
 
-    private val sectionedAdapter = UserWithReposAdapter()
-    private val networkStateAdapter = NetworkStateAdapter {
-        viewModel.retryFetchingLastPage {
-            sectionedAdapter.appendList(it)
+    private val listAdapter = UserWithReposAdapter()
+    private val networkStateAdapter =
+        NetworkStateAdapter {
+            viewModel.retryFetchingLastPage {
+                listAdapter.updateList(it)
+            }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,15 +80,15 @@ class UserWithReposActivity : AppCompatActivity() {
     }
 
     private fun initAdapter() {
-        recycler_view.adapter = MergeAdapter(sectionedAdapter, networkStateAdapter)
+        recycler_view.adapter = MergeAdapter(listAdapter, networkStateAdapter)
 
         // Add bottom boundary callback.
         recycler_view.setOnBottomBoundaryReachedCallback {
             viewModel.fetchNextPage {
-                sectionedAdapter.appendList(it)
+                listAdapter.updateList(it)
                 Toast.makeText(
                     this,
-                    "${sectionedAdapter.itemCount} items loaded",
+                    "${listAdapter.itemCount} items loaded",
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -96,10 +96,10 @@ class UserWithReposActivity : AppCompatActivity() {
 
         // Fetch initial items.
         viewModel.fetchInitialItems {
-            sectionedAdapter.appendList(it)
+            listAdapter.updateList(it)
             Toast.makeText(
                 this,
-                "${sectionedAdapter.itemCount} items loaded",
+                "${listAdapter.itemCount} items loaded",
                 Toast.LENGTH_LONG
             ).show()
         }

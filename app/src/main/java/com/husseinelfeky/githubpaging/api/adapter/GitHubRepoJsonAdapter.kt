@@ -1,4 +1,4 @@
-package com.husseinelfeky.githubpaging.api.adapters
+package com.husseinelfeky.githubpaging.api.adapter
 
 import com.husseinelfeky.githubpaging.persistence.entities.GitHubRepo
 import com.squareup.moshi.*
@@ -10,8 +10,8 @@ class GitHubRepoJsonAdapter : JsonAdapter<GitHubRepo>() {
         val jsonMap = reader.readJsonValue() as Map<*, *>
         val user = jsonMap["owner"] as Map<*, *>
         return GitHubRepo(
-            jsonMap["id"] as Long,
-            user["id"] as Long,
+            (jsonMap["id"] as Double).toLong(),
+            (user["id"] as Double).toLong(),
             jsonMap["name"] as String
         )
     }
