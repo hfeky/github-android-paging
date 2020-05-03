@@ -1,11 +1,11 @@
 package com.husseinelfeky.githubpaging.api
 
+import com.husseinelfeky.githubpaging.BuildConfig
 import com.husseinelfeky.githubpaging.api.adapters.GitHubRepoJsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -45,10 +45,10 @@ object RetrofitClient {
         setLevel(HttpLoggingInterceptor.Level.BODY)
     }
 
-    private fun tokenInterceptor(chain: Interceptor.Chain): Response = chain.run {
+    private fun tokenInterceptor(chain: Interceptor.Chain) = chain.run {
         proceed(
             request().newBuilder()
-                .addHeader("Authorization", "token 75eaba855c297ee5498a3bf699b95460ad78b924")
+                .addHeader("Authorization", "token ${BuildConfig.GITHUB_ACCESS_TOKEN}")
                 .build()
         )
     }
