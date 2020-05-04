@@ -13,15 +13,23 @@ class UserWithReposRepository(
 
     fun getUsersWithRepos(page: Int): Flowable<List<UserWithRepos>> {
         return usersFetchingRepo.fetchItems(page = page)
+            .doOnSuccess {
+                Timber.i("Fetched ${it.size} user repos")
+            }
+            .doOnError {
+                Timber.e(it)
+            }
             .toObservable()
             .flatMapIterable { users ->
                 users.map { user ->
                     gitHubReposFetchingRepo.fetchItems(false, user.userName, user.id)
                         .doOnSuccess {
-                            Timber.i("Fetched ${it.size} user repos")
-                        }.doOnError {
+                            Timber.i("Fetched ${it.size} users")
+                        }
+                        .doOnError {
                             Timber.e(it)
-                        }.subscribeOn(Schedulers.io())
+                        }
+                        .subscribeOn(Schedulers.io())
                         .subscribe()
                 }
             }
@@ -34,7 +42,7 @@ class UserWithReposRepository(
             // == toCompletable
             .ignoreElements()
             .andThen(
-                UserWithReposDataSource.gitHubDao.getUsersWithReposRx(
+                UserWithReposDataSource.gitHubDao.getUsersWithRepos(
                     usersFetchingRepo.getPageSize() * page
                 )
             )

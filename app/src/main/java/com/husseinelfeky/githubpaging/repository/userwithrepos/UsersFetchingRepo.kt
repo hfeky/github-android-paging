@@ -13,12 +13,12 @@ class UsersFetchingRepo : IPagedCaching<User> {
      * Set page size to "actualPageSize * pageToFetch" to support pagination by page.
      */
     override fun fetchItemsFromNetwork(page: Int, vararg params: Any) =
-        UserWithReposDataSource.gitHubApi.getUsersRx(page, getPageSize() * page)
+        UserWithReposDataSource.gitHubApi.getUsers(page, getPageSize() * page)
 
     override fun fetchItemsFromDB(page: Int, vararg params: Any) =
-        db.getUsersRx(getPageSize(), (page - 1) * getPageSize())
+        db.getUsers(getPageSize(), (page - 1) * getPageSize())
 
-    override fun saveItemsToLocalDB(itemsList: List<User>) = db.insertUsersRx(itemsList)
+    override fun saveItemsToLocalDB(itemsList: List<User>) = db.insertUsers(itemsList)
 
-    override fun deleteAllCachedItems() = db.deleteAllUsersRx()
+    override fun deleteAllCachedItems() = db.deleteAllUsers()
 }

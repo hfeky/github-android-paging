@@ -8,13 +8,13 @@ class GitHubReposFetchingRepo : ICaching<GitHubRepo> {
     private val db = UserWithReposDataSource.gitHubDao
 
     override fun fetchItemsFromNetwork(vararg params: Any) =
-        UserWithReposDataSource.gitHubApi.getAllRepositoriesRx(
+        UserWithReposDataSource.gitHubApi.getUserRepos(
             userName = params.first().toString()
         )
 
-    override fun fetchItemsFromDB(vararg params: Any) = db.getReposRx(params[1] as Long)
+    override fun fetchItemsFromDB(vararg params: Any) = db.getUserRepos(params[1] as Long)
 
-    override fun saveItemsToLocalDB(itemsList: List<GitHubRepo>) = db.insertReposRx(itemsList)
+    override fun saveItemsToLocalDB(itemsList: List<GitHubRepo>) = db.insertRepos(itemsList)
 
-    override fun deleteAllCachedItems() = db.deleteAllReposRx()
+    override fun deleteAllCachedItems() = db.deleteAllRepos()
 }

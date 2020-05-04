@@ -13,23 +13,23 @@ interface GitHubDao {
 
     @Transaction
     @Query("SELECT * FROM users ORDER BY id LIMIT :itemsLimit")
-    fun getUsersWithReposRx(itemsLimit: Int): Flowable<List<UserWithRepos>>
+    fun getUsersWithRepos(itemsLimit: Int): Flowable<List<UserWithRepos>>
 
     @Query("SELECT * FROM users ORDER BY id LIMIT :pageSize OFFSET :offset")
-    fun getUsersRx(pageSize: Int, offset: Int): Single<List<User>>
+    fun getUsers(pageSize: Int, offset: Int): Single<List<User>>
 
     @Query("SELECT * FROM repositories WHERE userId = :userId ORDER BY name")
-    fun getReposRx(userId: Long): Single<List<GitHubRepo>>
+    fun getUserRepos(userId: Long): Single<List<GitHubRepo>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUsersRx(users: List<User>): Completable
+    fun insertUsers(users: List<User>): Completable
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertReposRx(gitHubRepos: List<GitHubRepo>): Completable
+    fun insertRepos(gitHubRepos: List<GitHubRepo>): Completable
 
     @Query("DELETE FROM users")
-    fun deleteAllUsersRx(): Completable
+    fun deleteAllUsers(): Completable
 
     @Query("DELETE FROM repositories")
-    fun deleteAllReposRx(): Completable
+    fun deleteAllRepos(): Completable
 }

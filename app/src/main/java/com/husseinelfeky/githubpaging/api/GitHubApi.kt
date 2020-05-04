@@ -14,11 +14,11 @@ interface GitHubApi {
      * @param pageSize to "actualPageSize * pageToFetch" will solve this issue.
      */
     @GET("users")
-    fun getUsersRx(
+    fun getUsers(
         @Query("page") page: Int,
         @Query("per_page") pageSize: Int
     ): Single<List<User>>
 
     @GET("users/{user_name}/repos")
-    fun getAllRepositoriesRx(@Path("user_name") userName: String): Single<List<GitHubRepo>>
+    fun getUserRepos(@Path("user_name") userName: String): Single<List<GitHubRepo>>
 }
