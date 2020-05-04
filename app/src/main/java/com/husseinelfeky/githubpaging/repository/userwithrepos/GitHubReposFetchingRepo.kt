@@ -12,7 +12,7 @@ class GitHubReposFetchingRepo : ICaching<GitHubRepo> {
             userName = params.first().toString()
         )
 
-    override fun fetchItemsFromDB(vararg params: Any) = db.getReposRx()
+    override fun fetchItemsFromDB(vararg params: Any) = db.getReposRx(params[1] as Long)
 
     override fun saveItemsToLocalDB(itemsList: List<GitHubRepo>) = db.insertReposRx(itemsList)
 

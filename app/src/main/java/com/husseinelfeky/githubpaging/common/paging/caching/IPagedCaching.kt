@@ -1,10 +1,15 @@
 package com.husseinelfeky.githubpaging.common.paging.caching
 
-import io.reactivex.Completable
 import io.reactivex.Single
 import timber.log.Timber
 
-interface IPagedCaching<Entity> {
+interface IPagedCaching<Entity> : IBaseCaching<Entity> {
+
+    fun getPageSize(): Int
+
+    fun fetchItemsFromNetwork(page: Int, vararg params: Any): Single<List<Entity>>
+
+    fun fetchItemsFromDB(page: Int, vararg params: Any): Single<List<Entity>>
 
     fun fetchItems(
         forceNetwork: Boolean = false,
@@ -37,12 +42,4 @@ interface IPagedCaching<Entity> {
                     .andThen(Single.just(list))
             }
     }
-
-    fun fetchItemsFromNetwork(page: Int, vararg params: Any): Single<List<Entity>>
-
-    fun fetchItemsFromDB(page: Int, vararg params: Any): Single<List<Entity>>
-
-    fun saveItemsToLocalDB(itemsList: List<Entity>): Completable
-
-    fun deleteAllCachedItems(): Completable
 }

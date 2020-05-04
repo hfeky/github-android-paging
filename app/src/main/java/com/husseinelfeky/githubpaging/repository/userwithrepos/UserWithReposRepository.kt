@@ -16,7 +16,7 @@ class UserWithReposRepository(
             .toObservable()
             .flatMapIterable { users ->
                 users.map { user ->
-                    gitHubReposFetchingRepo.fetchItems(false, user.userName)
+                    gitHubReposFetchingRepo.fetchItems(false, user.userName, user.id)
                         .doOnSuccess {
                             Timber.i("Fetched ${it.size} user repos")
                         }.doOnError {
@@ -33,7 +33,11 @@ class UserWithReposRepository(
             }
             // == toCompletable
             .ignoreElements()
-            .andThen(UserWithReposDataSource.gitHubDao.getUsersWithReposRx())
+            .andThen(
+                UserWithReposDataSource.gitHubDao.getUsersWithReposRx(
+                    usersFetchingRepo.getPageSize() * page
+                )
+            )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
     }

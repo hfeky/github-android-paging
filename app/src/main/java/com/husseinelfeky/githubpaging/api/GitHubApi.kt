@@ -9,21 +9,15 @@ import retrofit2.http.Query
 
 interface GitHubApi {
 
+    /**
+     * Users API endpoint does not support pagination by page. Setting
+     * @param pageSize to "actualPageSize * pageToFetch" will solve this issue.
+     */
     @GET("users")
-    suspend fun getUsers(): List<User>
-
-    @GET("users/{user_name}/repos")
-    suspend fun getRepositories(@Path("user_name") userName: String): List<GitHubRepo>
-
-    @GET("users")
-    fun getUsersRx(@Query("page") page: Int, @Query("per_page") perPage: Int = 2): Single<List<User>>
-
-    @GET("users/{user_name}/repos")
-    fun getRepositoriesRx(
-        @Path("user_name") userName: String,
+    fun getUsersRx(
         @Query("page") page: Int,
-        @Query("per_page") perPage: Int = 10
-    ): Single<List<GitHubRepo>>
+        @Query("per_page") pageSize: Int
+    ): Single<List<User>>
 
     @GET("users/{user_name}/repos")
     fun getAllRepositoriesRx(@Path("user_name") userName: String): Single<List<GitHubRepo>>

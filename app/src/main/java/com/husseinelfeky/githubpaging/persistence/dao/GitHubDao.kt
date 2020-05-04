@@ -12,14 +12,14 @@ import io.reactivex.Single
 interface GitHubDao {
 
     @Transaction
-    @Query("SELECT * FROM users ORDER BY userName")
-    fun getUsersWithReposRx(): Flowable<List<UserWithRepos>>
+    @Query("SELECT * FROM users ORDER BY id LIMIT :itemsLimit")
+    fun getUsersWithReposRx(itemsLimit: Int): Flowable<List<UserWithRepos>>
 
-    @Query("SELECT * FROM users ORDER BY userName")
-    fun getUsersRx(): Single<List<User>>
+    @Query("SELECT * FROM users ORDER BY id LIMIT :pageSize OFFSET :offset")
+    fun getUsersRx(pageSize: Int, offset: Int): Single<List<User>>
 
-    @Query("SELECT * FROM repositories ORDER BY name")
-    fun getReposRx(): Single<List<GitHubRepo>>
+    @Query("SELECT * FROM repositories WHERE userId = :userId ORDER BY name")
+    fun getReposRx(userId: Long): Single<List<GitHubRepo>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUsersRx(users: List<User>): Completable
