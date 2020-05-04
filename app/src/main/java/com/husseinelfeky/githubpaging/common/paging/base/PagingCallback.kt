@@ -4,5 +4,5 @@ interface PagingCallback {
 
     fun fetchInitialPage()
 
-    fun fetchNextPage()
+    fun fetchNextPageIfPossible()
 }

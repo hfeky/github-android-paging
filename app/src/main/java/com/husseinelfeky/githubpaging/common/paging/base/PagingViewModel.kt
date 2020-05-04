@@ -32,7 +32,22 @@ abstract class PagingViewModel<Entity> : ViewModel() {
     abstract fun invalidateDataSource()
 
     open fun retryFetchingNextPage(onItemsLoadedCallback: ItemsLoadedCallback<Entity>) {
-        fetchNextPage(onItemsLoadedCallback)
+        fetchNextPageIfPossible(onItemsLoadedCallback, true)
+    }
+
+    /**
+     *  Do not fetch next page if it is already fetching or there is an error
+     *  unless it is a forced fetch.
+     */
+    fun fetchNextPageIfPossible(
+        onItemsLoadedCallback: ItemsLoadedCallback<Entity>,
+        forceFetch: Boolean = false
+    ): Boolean {
+        if (forceFetch || !(_networkState.value is NetworkState.Loading || _networkState.value is NetworkState.Error)) {
+            fetchNextPage(onItemsLoadedCallback)
+            return true
+        }
+        return false
     }
 
     override fun onCleared() {

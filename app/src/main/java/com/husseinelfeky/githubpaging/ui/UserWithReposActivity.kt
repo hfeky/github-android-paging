@@ -98,8 +98,8 @@ class UserWithReposActivity : AppCompatActivity() {
                 viewModel.fetchInitialPage(onItemsLoadedCallback)
             }
 
-            override fun fetchNextPage() {
-                viewModel.fetchNextPage(onItemsLoadedCallback)
+            override fun fetchNextPageIfPossible() {
+                viewModel.fetchNextPageIfPossible(onItemsLoadedCallback)
             }
         })
     }

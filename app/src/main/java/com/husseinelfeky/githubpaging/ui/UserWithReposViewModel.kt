@@ -36,22 +36,19 @@ class UserWithReposViewModel(
     }
 
     override fun fetchNextPage(onItemsLoadedCallback: ItemsLoadedCallback<UserWithRepos>) {
-        // Fetch next page if it is not already fetching.
-        if (_networkState.value !is NetworkState.Loading) {
-            fetchingRepo.getUsersWithRepos(currentPage)
-                .doOnSubscribe {
-                    _networkState.postValue(NetworkState.Loading)
-                }
-                .subscribe({ usersWithRepos ->
-                    currentPage++
-                    _networkState.postValue(NetworkState.Loaded)
-                    onItemsLoadedCallback(usersWithRepos)
-                }, {
-                    _networkState.postValue(NetworkState.Error(it))
-                    Timber.e(it)
-                })
-                .addToCompositeDisposable(compositeDisposable)
-        }
+        fetchingRepo.getUsersWithRepos(currentPage)
+            .doOnSubscribe {
+                _networkState.postValue(NetworkState.Loading)
+            }
+            .subscribe({ usersWithRepos ->
+                currentPage++
+                _networkState.postValue(NetworkState.Loaded)
+                onItemsLoadedCallback(usersWithRepos)
+            }, {
+                _networkState.postValue(NetworkState.Error(it))
+                Timber.e(it)
+            })
+            .addToCompositeDisposable(compositeDisposable)
     }
 
     override fun invalidateDataSource() {

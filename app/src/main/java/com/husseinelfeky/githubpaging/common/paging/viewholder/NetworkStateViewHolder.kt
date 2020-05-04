@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.husseinelfeky.githubpaging.R
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
-import kotlinx.android.synthetic.main.item_paged_loading.view.*
+import kotlinx.android.synthetic.main.item_network_state.view.*
 
 class NetworkStateViewHolder(
     view: View,
@@ -19,25 +19,26 @@ class NetworkStateViewHolder(
 
     fun bind(networkState: NetworkState) {
         with(itemView) {
-            if (networkState is NetworkState.Error) {
-                tv_error.text = networkState.error.localizedMessage
+            tv_error.text = if (networkState is NetworkState.Error) {
+                networkState.error.localizedMessage
+            } else {
+                null
             }
             progress_bar.visibility = toVisibility(networkState == NetworkState.Loading)
-            tv_error.visibility = toVisibility(networkState != NetworkState.Loading)
-            btn_retry.visibility = toVisibility(networkState != NetworkState.Loading)
+            group_error.visibility = toVisibility(networkState != NetworkState.Loading)
         }
     }
 
     private fun toVisibility(constraint: Boolean): Int = if (constraint) {
         View.VISIBLE
     } else {
-        View.GONE
+        View.INVISIBLE
     }
 
     companion object {
         fun create(parent: ViewGroup, retryAction: () -> Unit): NetworkStateViewHolder {
             val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_paged_loading, parent, false)
+                .inflate(R.layout.item_network_state, parent, false)
             return NetworkStateViewHolder(
                 view,
                 retryAction
