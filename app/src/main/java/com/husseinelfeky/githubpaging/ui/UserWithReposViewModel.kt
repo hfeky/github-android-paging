@@ -2,6 +2,7 @@ package com.husseinelfeky.githubpaging.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.husseinelfeky.githubpaging.common.paging.base.PagingCallback
 import com.husseinelfeky.githubpaging.common.paging.base.PagingViewModel
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
@@ -14,7 +15,7 @@ class UserWithReposViewModel(
     private val fetchingRepo: UserWithReposRepository
 ) : PagingViewModel<UserWithRepos>() {
 
-    override fun fetchInitialItems(onItemsLoadedCallback: (items: List<UserWithRepos>) -> Unit) {
+    override fun fetchInitialPage(onItemsLoadedCallback: PagingCallback<UserWithRepos>) {
         fetchingRepo.getUsersWithRepos(1)
             .doOnSubscribe {
                 _pagedListState.postValue(PagedListState.Loading)
@@ -34,7 +35,7 @@ class UserWithReposViewModel(
             .addToCompositeDisposable(compositeDisposable)
     }
 
-    override fun fetchNextPage(onItemsLoadedCallback: (items: List<UserWithRepos>) -> Unit) {
+    override fun fetchNextPage(onItemsLoadedCallback: PagingCallback<UserWithRepos>) {
         // Fetch next page if it is not already fetching.
         if (_networkState.value !is NetworkState.Loading) {
             fetchingRepo.getUsersWithRepos(currentPage)

@@ -12,9 +12,7 @@ class PlaceholderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun create(parent: ViewGroup, @LayoutRes layoutResource: Int): PlaceholderViewHolder {
             val view = LayoutInflater.from(parent.context)
                 .inflate(layoutResource, parent, false)
-            return PlaceholderViewHolder(
-                view
-            )
+            return PlaceholderViewHolder(view)
         }
     }
 }
