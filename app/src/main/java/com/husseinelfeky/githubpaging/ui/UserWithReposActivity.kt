@@ -8,11 +8,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.MergeAdapter
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.common.paging.base.PagingCallback
 import com.husseinelfeky.githubpaging.common.paging.adapter.NetworkStateAdapter
-import com.husseinelfeky.githubpaging.common.paging.addOnBottomBoundaryReachedCallback
+import com.husseinelfeky.githubpaging.common.paging.base.ItemsLoadedCallback
+import com.husseinelfeky.githubpaging.common.paging.base.PagingCallback
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
+import com.husseinelfeky.githubpaging.common.paging.utils.setupPaging
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
 import kotlinx.android.synthetic.main.activity_main.*
@@ -22,7 +23,7 @@ class UserWithReposActivity : AppCompatActivity() {
 
     private lateinit var viewModel: UserWithReposViewModel
 
-    private val onItemsLoadedCallback = object : PagingCallback<UserWithRepos>() {
+    private val onItemsLoadedCallback = object : ItemsLoadedCallback<UserWithRepos>() {
         override fun invoke(list: List<UserWithRepos>) {
             listAdapter.updateList(list)
             Toast.makeText(
@@ -92,13 +93,15 @@ class UserWithReposActivity : AppCompatActivity() {
     private fun initAdapter() {
         recycler_view.adapter = MergeAdapter(listAdapter, networkStateAdapter)
 
-        // Add bottom boundary callback to load next pages.
-        recycler_view.addOnBottomBoundaryReachedCallback {
-            viewModel.fetchNextPage(onItemsLoadedCallback)
-        }
+        recycler_view.setupPaging(object : PagingCallback {
+            override fun fetchInitialPage() {
+                viewModel.fetchInitialPage(onItemsLoadedCallback)
+            }
 
-        // Fetch initial page.
-        viewModel.fetchInitialPage(onItemsLoadedCallback)
+            override fun fetchNextPage() {
+                viewModel.fetchNextPage(onItemsLoadedCallback)
+            }
+        })
     }
 
     private fun initListeners() {

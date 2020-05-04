@@ -25,13 +25,13 @@ abstract class PagingViewModel<Entity> : ViewModel() {
 
     var currentPage = 1
 
-    abstract fun fetchInitialPage(onItemsLoadedCallback: PagingCallback<Entity>)
+    abstract fun fetchInitialPage(onItemsLoadedCallback: ItemsLoadedCallback<Entity>)
 
-    abstract fun fetchNextPage(onItemsLoadedCallback: PagingCallback<Entity>)
+    abstract fun fetchNextPage(onItemsLoadedCallback: ItemsLoadedCallback<Entity>)
 
     abstract fun invalidateDataSource()
 
-    open fun retryFetchingNextPage(onItemsLoadedCallback: PagingCallback<Entity>) {
+    open fun retryFetchingNextPage(onItemsLoadedCallback: ItemsLoadedCallback<Entity>) {
         fetchNextPage(onItemsLoadedCallback)
     }
 
