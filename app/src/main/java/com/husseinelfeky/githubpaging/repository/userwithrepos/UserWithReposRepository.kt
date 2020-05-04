@@ -7,17 +7,16 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 class UserWithReposRepository(
-    private val usersFetchingRepo: GitHubUsersFetchingRepo = GitHubUsersFetchingRepo(),
+    private val usersFetchingRepo: UsersFetchingRepo = UsersFetchingRepo(),
     private val gitHubReposFetchingRepo: GitHubReposFetchingRepo = GitHubReposFetchingRepo()
 ) {
 
     fun getUsersWithRepos(page: Int): Flowable<List<UserWithRepos>> {
-        return usersFetchingRepo
-            .fetchItems(page = page)
+        return usersFetchingRepo.fetchItems(page = page)
             .toObservable()
-            .flatMapIterable {
-                it.map { user ->
-                    gitHubReposFetchingRepo.fetchItems(user.userName, page = 1)
+            .flatMapIterable { users ->
+                users.map { user ->
+                    gitHubReposFetchingRepo.fetchItems(false, user.userName)
                         .doOnSuccess {
                             Timber.i("Fetched ${it.size} user repos")
                         }.doOnError {

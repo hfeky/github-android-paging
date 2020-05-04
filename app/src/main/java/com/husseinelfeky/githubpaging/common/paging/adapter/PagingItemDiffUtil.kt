@@ -1,7 +1,7 @@
 package com.husseinelfeky.githubpaging.common.paging.adapter
 
 import androidx.recyclerview.widget.DiffUtil
-import com.husseinelfeky.githubpaging.models.PagingItem
+import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
 
 class PagingItemDiffUtil : DiffUtil.ItemCallback<PagingItem>() {
 

@@ -1,35 +1,31 @@
-package com.husseinelfeky.githubpaging.common.paging.base
+package com.husseinelfeky.githubpaging.common.paging.caching
 
 import io.reactivex.Completable
 import io.reactivex.Single
 import timber.log.Timber
 
-interface IOfflineCaching<Entity> {
-
-    fun fetchItems(forceNetwork: Boolean = false, vararg params: String): Single<List<Entity>> {
-        return fetchItems(forceNetwork = forceNetwork, page = 1)
-    }
+interface IPagedCaching<Entity> {
 
     fun fetchItems(
-        vararg params: Any,
         forceNetwork: Boolean = false,
-        page: Int
+        page: Int,
+        vararg params: Any
     ): Single<List<Entity>> {
         if (!forceNetwork) {
-            return fetchItemsFromDB(*params, page = page)
+            return fetchItemsFromDB(page, *params)
                 .flatMap {
                     if (it.isEmpty()) {
-                        return@flatMap fetchAndSave(*params, page = page)
+                        return@flatMap fetchAndSave(page, *params)
                     }
                     // If local database items exist, return them.
                     return@flatMap Single.just(it)
                 }
         }
-        return fetchAndSave(*params, page = page)
+        return fetchAndSave(page, *params)
     }
 
-    private fun fetchAndSave(vararg params: Any, page: Int): Single<List<Entity>> {
-        return fetchItemsFromNetwork(*params, page = page)
+    private fun fetchAndSave(page: Int, vararg params: Any): Single<List<Entity>> {
+        return fetchItemsFromNetwork(page, *params)
             .doOnError { throwable ->
                 Timber.e(throwable, "Failed to fetch items from network.")
             }
@@ -42,9 +38,9 @@ interface IOfflineCaching<Entity> {
             }
     }
 
-    fun fetchItemsFromNetwork(vararg params: Any, page: Int): Single<List<Entity>>
+    fun fetchItemsFromNetwork(page: Int, vararg params: Any): Single<List<Entity>>
 
-    fun fetchItemsFromDB(vararg params: Any, page: Int): Single<List<Entity>>
+    fun fetchItemsFromDB(page: Int, vararg params: Any): Single<List<Entity>>
 
     fun saveItemsToLocalDB(itemsList: List<Entity>): Completable
 

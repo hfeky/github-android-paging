@@ -1,4 +1,4 @@
-package com.husseinelfeky.githubpaging.models
+package com.husseinelfeky.githubpaging.common.paging.base
 
 abstract class PagingItem {
 

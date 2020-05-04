@@ -2,7 +2,7 @@ package com.husseinelfeky.githubpaging.persistence.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.husseinelfeky.githubpaging.models.PagingItem
+import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
 import com.squareup.moshi.Json
 
 @Entity(tableName = "users")

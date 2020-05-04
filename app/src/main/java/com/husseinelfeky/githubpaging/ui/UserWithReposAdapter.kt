@@ -4,7 +4,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.husseinelfeky.githubpaging.R
 import com.husseinelfeky.githubpaging.common.paging.base.PagingAdapter
-import com.husseinelfeky.githubpaging.models.PagingItem
+import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
 import com.husseinelfeky.githubpaging.persistence.entities.GitHubRepo
 import com.husseinelfeky.githubpaging.persistence.entities.User
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
