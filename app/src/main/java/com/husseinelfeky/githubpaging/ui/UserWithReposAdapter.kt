@@ -41,17 +41,17 @@ class UserWithReposAdapter : PagingAdapter<UserWithRepos>() {
         }
     }
 
-    override fun updateList(list: List<UserWithRepos>) {
-        val pagingItems = mutableListOf<PagingItem>()
-        list.forEach { userWithRepos ->
-            with(userWithRepos) {
-                if (repos.isNotEmpty()) {
-                    pagingItems.add(user)
-                    pagingItems.addAll(repos)
+    override fun convertList(list: List<UserWithRepos>): List<PagingItem> {
+        return mutableListOf<PagingItem>().apply {
+            list.forEach { userWithRepos ->
+                with(userWithRepos) {
+                    if (repos.isNotEmpty()) {
+                        add(user)
+                        addAll(repos)
+                    }
                 }
             }
+            Timber.i("pagingItems size is $size")
         }
-        Timber.i("pagingItems size is ${pagingItems.size}")
-        submitList(pagingItems)
     }
 }

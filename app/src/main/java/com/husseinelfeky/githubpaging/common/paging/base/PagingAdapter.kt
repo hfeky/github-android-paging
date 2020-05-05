@@ -3,10 +3,32 @@ package com.husseinelfeky.githubpaging.common.paging.base
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.husseinelfeky.githubpaging.common.paging.adapter.PagingItemDiffUtil
+import kotlinx.coroutines.*
 
 abstract class PagingAdapter<Entity> : ListAdapter<PagingItem, RecyclerView.ViewHolder>(
     PagingItemDiffUtil.getInstance()
 ) {
 
-    abstract fun updateList(list: List<Entity>)
+    private val uiDispatcher = Dispatchers.Main
+    private val backgroundScope = CoroutineScope(Dispatchers.IO)
+
+    private var conversionJob: Job? = null
+
+    fun updateList(list: List<Entity>) {
+        conversionJob?.let { job ->
+            if (job.isActive) {
+                job.cancel("A new list is populated.")
+            }
+        }
+
+        conversionJob = backgroundScope.launch {
+            convertList(list).also { pagingItems ->
+                withContext(uiDispatcher) {
+                    submitList(pagingItems)
+                }
+            }
+        }
+    }
+
+    abstract fun convertList(list: List<Entity>): List<PagingItem>
 }
