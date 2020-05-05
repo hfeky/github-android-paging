@@ -6,16 +6,16 @@ import com.husseinelfeky.githubpaging.common.paging.base.ItemsLoadedCallback
 import com.husseinelfeky.githubpaging.common.paging.base.PagingViewModel
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
-import com.husseinelfeky.githubpaging.common.utils.addToCompositeDisposable
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
+import io.reactivex.disposables.Disposable
 import timber.log.Timber
 
 class UserWithReposViewModel(
     private val fetchingRepo: UserWithReposRepository
 ) : PagingViewModel<UserWithRepos>() {
 
-    override fun fetchInitialPage(onItemsLoadedCallback: ItemsLoadedCallback<UserWithRepos>) {
+    override fun loadInitialPage(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
         fetchingRepo.getUsersWithRepos(1)
             .doOnSubscribe {
                 _pagedListState.postValue(PagedListState.Loading)
@@ -26,16 +26,14 @@ class UserWithReposViewModel(
                     _pagedListState.postValue(PagedListState.Empty)
                 } else {
                     _pagedListState.postValue(PagedListState.Loaded)
-                    onItemsLoadedCallback(usersWithRepos)
+                    callback(usersWithRepos)
                 }
             }, {
                 _pagedListState.postValue(PagedListState.Error(it))
                 Timber.e(it)
             })
-            .addToCompositeDisposable(compositeDisposable)
-    }
 
-    override fun fetchNextPage(onItemsLoadedCallback: ItemsLoadedCallback<UserWithRepos>) {
+    override fun loadNextPage(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
         fetchingRepo.getUsersWithRepos(currentPage)
             .doOnSubscribe {
                 _networkState.postValue(NetworkState.Loading)
@@ -43,13 +41,11 @@ class UserWithReposViewModel(
             .subscribe({ usersWithRepos ->
                 currentPage++
                 _networkState.postValue(NetworkState.Loaded)
-                onItemsLoadedCallback(usersWithRepos)
+                callback(usersWithRepos)
             }, {
                 _networkState.postValue(NetworkState.Error(it))
                 Timber.e(it)
             })
-            .addToCompositeDisposable(compositeDisposable)
-    }
 
     override fun invalidateDataSource() {
         // TODO: Implement refresh logic.
