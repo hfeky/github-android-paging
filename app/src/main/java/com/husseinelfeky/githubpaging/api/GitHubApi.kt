@@ -10,12 +10,14 @@ import retrofit2.http.Query
 interface GitHubApi {
 
     /**
-     * Users API endpoint does not support pagination by page. Setting
-     * @param pageSize to "actualPageSize * pageToFetch" will solve this issue.
+     * GitHub Users API endpoint does not support pagination by page; it paginates
+     * with respect to the user's id.
+     *
+     * @param sinceId Set it to "(pageToFetch - 1) * pageSize" to solve this issue.
      */
     @GET("users")
     fun getUsers(
-        @Query("page") page: Int,
+        @Query("since") sinceId: Int,
         @Query("per_page") pageSize: Int
     ): Single<List<User>>
 

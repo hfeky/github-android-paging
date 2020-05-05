@@ -6,7 +6,7 @@ import com.husseinelfeky.githubpaging.common.paging.base.PagingCallback
 
 fun RecyclerView.setupPaging(
     pagingCallback: PagingCallback,
-    prefetchDistance: Int = 10,
+    prefetchDistance: Int = 20,
     pagingDirection: PagingDirection = PagingDirection.DOWN
 ) {
     if (layoutManager == null) {

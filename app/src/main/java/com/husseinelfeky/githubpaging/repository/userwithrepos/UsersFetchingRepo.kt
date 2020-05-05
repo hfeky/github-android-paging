@@ -10,10 +10,11 @@ class UsersFetchingRepo : IPagedCaching<User> {
     override fun getPageSize(): Int = 2
 
     /**
-     * Set page size to "actualPageSize * pageToFetch" to support pagination by page.
+     * @see com.husseinelfeky.githubpaging.api.GitHubApi.getUsers to understand
+     * how pagination works for GitHub users.
      */
     override fun fetchItemsFromNetwork(page: Int, vararg params: Any) =
-        UserWithReposDataSource.gitHubApi.getUsers(page, getPageSize() * page)
+        UserWithReposDataSource.gitHubApi.getUsers((page - 1) * getPageSize(), getPageSize())
 
     override fun fetchItemsFromDB(page: Int, vararg params: Any) =
         db.getUsers(getPageSize(), (page - 1) * getPageSize())
