@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
 import com.husseinelfeky.githubpaging.common.utils.addToCompositeDisposable
+import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
@@ -33,7 +34,7 @@ abstract class PagingViewModel<Entity> : ViewModel() {
 
     abstract fun loadNextPage(callback: ItemsLoadedCallback<Entity>): Disposable
 
-    abstract fun invalidateDataSource()
+    abstract fun invalidateDataSource(callback: ItemsLoadedCallback<UserWithRepos>): Disposable
 
     open fun retryFetchingNextPage(callback: ItemsLoadedCallback<Entity>) {
         fetchNextPageIfPossible(callback, true)

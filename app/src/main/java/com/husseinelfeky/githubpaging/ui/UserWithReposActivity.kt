@@ -106,7 +106,7 @@ class UserWithReposActivity : AppCompatActivity() {
 
     private fun initListeners() {
         swipe_refresh.setOnRefreshListener {
-            viewModel.invalidateDataSource()
+            viewModel.invalidateDataSource(onItemsLoadedCallback)
         }
     }
 

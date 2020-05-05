@@ -21,7 +21,7 @@ class UserWithReposViewModel(
                 _pagedListState.postValue(PagedListState.Loading)
             }
             .subscribe({ usersWithRepos ->
-                currentPage++
+                currentPage = 2
                 if (usersWithRepos.isEmpty()) {
                     _pagedListState.postValue(PagedListState.Empty)
                 } else {
@@ -47,10 +47,21 @@ class UserWithReposViewModel(
                 Timber.e(it)
             })
 
-    override fun invalidateDataSource() {
-        // TODO: Implement refresh logic.
-        _refreshState.postValue(NetworkState.Loading)
-    }
+    override fun invalidateDataSource(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
+        fetchingRepo.getUsersWithRepos(1)
+            .doOnSubscribe {
+                _refreshState.postValue(NetworkState.Loading)
+            }
+            .subscribe({ usersWithRepos ->
+                currentPage = 2
+                _refreshState.postValue(NetworkState.Loaded)
+                if (usersWithRepos.isNotEmpty()) {
+                    callback(usersWithRepos)
+                }
+            }, {
+                // TODO: Show error in a Snackbar.
+                Timber.e(it)
+            })
 
     @Suppress("UNCHECKED_CAST")
     class Factory(private val fetchingRepo: UserWithReposRepository) : ViewModelProvider.Factory {
