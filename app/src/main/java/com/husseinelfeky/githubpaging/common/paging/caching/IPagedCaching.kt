@@ -12,21 +12,43 @@ interface IPagedCaching<Entity> : IBaseCaching<Entity> {
     fun fetchItemsFromDB(page: Int, vararg params: Any): Single<List<Entity>>
 
     fun fetchItems(
-        forceNetwork: Boolean = false,
         page: Int,
+        fetchingStrategy: FetchingStrategy = FetchingStrategy.CACHE_FIRST,
         vararg params: Any
     ): Single<List<Entity>> {
-        if (!forceNetwork) {
-            return fetchItemsFromDB(page, *params)
-                .flatMap {
-                    if (it.isEmpty()) {
-                        return@flatMap fetchAndSave(page, *params)
+        when (fetchingStrategy) {
+            FetchingStrategy.CACHE_FIRST -> {
+                return fetchItemsFromDB(page, *params)
+                    .doOnError { throwable ->
+                        Timber.e(throwable, "Failed to fetch items from cache.")
                     }
-                    // If local database items exist, return them.
-                    return@flatMap Single.just(it)
-                }
+                    .flatMap {
+                        if (it.isEmpty()) {
+                            return@flatMap fetchAndSave(page, *params)
+                        }
+                        // If local database items exist, return them.
+                        return@flatMap Single.just(it)
+                    }
+            }
+            FetchingStrategy.NETWORK_FIRST -> {
+                return fetchAndSave(page, *params)
+                    .onErrorResumeNext {
+                        return@onErrorResumeNext fetchItemsFromDB(page, *params)
+                            .doOnError { throwable ->
+                                Timber.e(throwable, "Failed to fetch items from cache.")
+                            }
+                    }
+            }
+            FetchingStrategy.CACHE_ONLY -> {
+                return fetchItemsFromDB(page, *params)
+                    .doOnError { throwable ->
+                        Timber.e(throwable, "Failed to fetch items from cache.")
+                    }
+            }
+            FetchingStrategy.NETWORK_ONLY -> {
+                return fetchAndSave(page, *params)
+            }
         }
-        return fetchAndSave(page, *params)
     }
 
     private fun fetchAndSave(page: Int, vararg params: Any): Single<List<Entity>> {

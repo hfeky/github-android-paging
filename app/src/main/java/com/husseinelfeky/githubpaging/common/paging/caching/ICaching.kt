@@ -10,20 +10,42 @@ interface ICaching<Entity> : IBaseCaching<Entity> {
     fun fetchItemsFromDB(vararg params: Any): Single<List<Entity>>
 
     fun fetchItems(
-        forceNetwork: Boolean = false,
+        fetchingStrategy: FetchingStrategy = FetchingStrategy.CACHE_FIRST,
         vararg params: Any
     ): Single<List<Entity>> {
-        if (!forceNetwork) {
-            return fetchItemsFromDB(*params)
-                .flatMap {
-                    if (it.isEmpty()) {
-                        return@flatMap fetchAndSave(*params)
+        when (fetchingStrategy) {
+            FetchingStrategy.CACHE_FIRST -> {
+                return fetchItemsFromDB(*params)
+                    .doOnError { throwable ->
+                        Timber.e(throwable, "Failed to fetch items from cache.")
                     }
-                    // If local database items exist, return them.
-                    return@flatMap Single.just(it)
-                }
+                    .flatMap {
+                        if (it.isEmpty()) {
+                            return@flatMap fetchAndSave(*params)
+                        }
+                        // If local database items exist, return them.
+                        return@flatMap Single.just(it)
+                    }
+            }
+            FetchingStrategy.NETWORK_FIRST -> {
+                return fetchAndSave(*params)
+                    .onErrorResumeNext {
+                        return@onErrorResumeNext fetchItemsFromDB(*params)
+                            .doOnError { throwable ->
+                                Timber.e(throwable, "Failed to fetch items from cache.")
+                            }
+                    }
+            }
+            FetchingStrategy.CACHE_ONLY -> {
+                return fetchItemsFromDB(*params)
+                    .doOnError { throwable ->
+                        Timber.e(throwable, "Failed to fetch items from cache.")
+                    }
+            }
+            FetchingStrategy.NETWORK_ONLY -> {
+                return fetchAndSave(*params)
+            }
         }
-        return fetchAndSave(*params)
     }
 
     private fun fetchAndSave(vararg params: Any): Single<List<Entity>> {

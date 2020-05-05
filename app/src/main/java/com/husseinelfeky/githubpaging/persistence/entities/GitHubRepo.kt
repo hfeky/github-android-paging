@@ -11,7 +11,10 @@ import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
         ForeignKey(
             entity = User::class,
             parentColumns = ["id"],
-            childColumns = ["userId"]
+            childColumns = ["userId"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+            deferred = true
         )
     ]
 )
