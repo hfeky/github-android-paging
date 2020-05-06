@@ -94,12 +94,12 @@ class UserWithReposActivity : AppCompatActivity() {
         recycler_view.adapter = MergeAdapter(listAdapter, networkStateAdapter)
 
         recycler_view.setupPaging(object : PagingCallback {
-            override fun fetchInitialPage() {
+            override fun onSetupFinish() {
                 viewModel.fetchInitialPage(onItemsLoadedCallback)
             }
 
-            override fun fetchNextPageIfPossible() {
-                viewModel.fetchNextPageIfPossible(onItemsLoadedCallback)
+            override fun onLoadMoreItems() {
+                viewModel.fetchNextPage(onItemsLoadedCallback)
             }
         })
     }

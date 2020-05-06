@@ -23,7 +23,7 @@ fun RecyclerView.setupPaging(
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (layoutManager.itemCount - layoutManager.findLastVisibleItemPosition() <= prefetchDistance) {
-                    pagingCallback.fetchNextPageIfPossible()
+                    pagingCallback.onLoadMoreItems()
                 }
             }
         })
@@ -32,11 +32,11 @@ fun RecyclerView.setupPaging(
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (layoutManager.findFirstVisibleItemPosition() <= prefetchDistance) {
-                    pagingCallback.fetchNextPageIfPossible()
+                    pagingCallback.onLoadMoreItems()
                 }
             }
         })
     }
 
-    pagingCallback.fetchInitialPage()
+    pagingCallback.onSetupFinish()
 }

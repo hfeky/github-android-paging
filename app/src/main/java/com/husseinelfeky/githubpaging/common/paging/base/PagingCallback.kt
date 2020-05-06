@@ -2,7 +2,7 @@ package com.husseinelfeky.githubpaging.common.paging.base
 
 interface PagingCallback {
 
-    fun fetchInitialPage()
+    fun onSetupFinish()
 
-    fun fetchNextPageIfPossible()
+    fun onLoadMoreItems()
 }

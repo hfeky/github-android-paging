@@ -37,7 +37,7 @@ abstract class PagingViewModel<Entity> : ViewModel() {
     abstract fun invalidateDataSource(callback: ItemsLoadedCallback<UserWithRepos>): Disposable
 
     open fun retryFetchingNextPage(callback: ItemsLoadedCallback<Entity>) {
-        fetchNextPageIfPossible(callback, true)
+        fetchNextPage(callback, true)
     }
 
     private fun clearPagedListDisposable() {
@@ -52,7 +52,7 @@ abstract class PagingViewModel<Entity> : ViewModel() {
             .addToCompositeDisposable(compositeDisposable)
     }
 
-    fun fetchNextPage(callback: ItemsLoadedCallback<Entity>) {
+    private fun fetchNextPageInternal(callback: ItemsLoadedCallback<Entity>) {
         clearPagedListDisposable()
         pagedListDisposable = loadNextPage(callback)
             .addToCompositeDisposable(compositeDisposable)
@@ -62,12 +62,12 @@ abstract class PagingViewModel<Entity> : ViewModel() {
      *  Do not fetch next page if it is already fetching or there is an error
      *  unless it is a forced fetch.
      */
-    fun fetchNextPageIfPossible(
+    fun fetchNextPage(
         callback: ItemsLoadedCallback<Entity>,
         forceFetch: Boolean = false
     ): Boolean {
         if (forceFetch || !(_networkState.value is NetworkState.Loading || _networkState.value is NetworkState.Error)) {
-            fetchNextPage(callback)
+            fetchNextPageInternal(callback)
             return true
         }
         return false
