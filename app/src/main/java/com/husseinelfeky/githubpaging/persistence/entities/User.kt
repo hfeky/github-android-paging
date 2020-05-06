@@ -7,9 +7,14 @@ import com.squareup.moshi.Json
 
 @Entity(tableName = "users")
 data class User(
-    @PrimaryKey override val id: Long,
+    @PrimaryKey val id: Long,
     @Json(name = "login")
     val userName: String,
     @Json(name = "avatar_url")
     val avatarUrl: String
-) : PagingItem()
+) : PagingItem {
+
+    override fun getUniqueIdentifier(): Any = id
+
+    override fun getContent(): String = toString()
+}

@@ -1,8 +1,9 @@
-package com.husseinelfeky.githubpaging.common.paging.base
+package com.husseinelfeky.githubpaging.common.paging.adapter
 
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.husseinelfeky.githubpaging.common.paging.adapter.PagingItemDiffUtil
+import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
+import com.husseinelfeky.githubpaging.common.paging.utils.PagingItemDiffUtil
 import kotlinx.coroutines.*
 
 abstract class PagingAdapter<Entity> : ListAdapter<PagingItem, RecyclerView.ViewHolder>(

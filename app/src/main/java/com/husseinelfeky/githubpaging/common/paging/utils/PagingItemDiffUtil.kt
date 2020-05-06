@@ -1,4 +1,4 @@
-package com.husseinelfeky.githubpaging.common.paging.adapter
+package com.husseinelfeky.githubpaging.common.paging.utils
 
 import androidx.recyclerview.widget.DiffUtil
 import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
@@ -6,11 +6,11 @@ import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
 class PagingItemDiffUtil : DiffUtil.ItemCallback<PagingItem>() {
 
     override fun areItemsTheSame(oldItem: PagingItem, newItem: PagingItem): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem.getUniqueIdentifier() == newItem.getUniqueIdentifier()
     }
 
     override fun areContentsTheSame(oldItem: PagingItem, newItem: PagingItem): Boolean {
-        return oldItem == newItem
+        return oldItem.getContent() == newItem.getContent()
     }
 
     companion object {

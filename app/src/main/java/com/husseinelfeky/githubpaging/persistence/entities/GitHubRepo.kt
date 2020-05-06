@@ -19,7 +19,12 @@ import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
     ]
 )
 data class GitHubRepo(
-    @PrimaryKey override val id: Long,
+    @PrimaryKey val id: Long,
     val userId: Long,
     val name: String
-) : PagingItem()
+) : PagingItem {
+
+    override fun getUniqueIdentifier(): Any = id
+
+    override fun getContent(): String = toString()
+}
