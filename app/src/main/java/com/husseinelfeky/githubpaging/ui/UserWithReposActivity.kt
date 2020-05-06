@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.MergeAdapter
+import com.google.android.material.snackbar.Snackbar
 import com.husseinelfeky.githubpaging.R
 import com.husseinelfeky.githubpaging.common.paging.adapter.NetworkStateAdapter
 import com.husseinelfeky.githubpaging.common.paging.base.ItemsLoadedCallback
@@ -87,6 +88,13 @@ class UserWithReposActivity : AppCompatActivity() {
 
         viewModel.refreshState.observe(this, Observer {
             swipe_refresh.isRefreshing = it == NetworkState.Loading
+            if (it is NetworkState.Error) {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    it.error.toString(),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
         })
     }
 

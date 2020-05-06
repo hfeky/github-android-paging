@@ -62,7 +62,6 @@ class UserWithReposViewModel(
                 }
                 _refreshState.postValue(NetworkState.Loaded)
             }, {
-                // TODO: Show error in a Snackbar.
                 Timber.e(it)
                 _refreshState.postValue(NetworkState.Error(it))
             })
