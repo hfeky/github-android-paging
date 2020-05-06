@@ -22,15 +22,15 @@ class UserWithReposViewModel(
             }
             .subscribe({ usersWithRepos ->
                 currentPage = 2
+                callback(usersWithRepos)
                 if (usersWithRepos.isEmpty()) {
                     _pagedListState.postValue(PagedListState.Empty)
                 } else {
                     _pagedListState.postValue(PagedListState.Loaded)
-                    callback(usersWithRepos)
                 }
             }, {
-                _pagedListState.postValue(PagedListState.Error(it))
                 Timber.e(it)
+                _pagedListState.postValue(PagedListState.Error(it))
             })
 
     override fun loadNextPage(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
@@ -40,11 +40,11 @@ class UserWithReposViewModel(
             }
             .subscribe({ usersWithRepos ->
                 currentPage++
-                _networkState.postValue(NetworkState.Loaded)
                 callback(usersWithRepos)
+                _networkState.postValue(NetworkState.Loaded)
             }, {
-                _networkState.postValue(NetworkState.Error(it))
                 Timber.e(it)
+                _networkState.postValue(NetworkState.Error(it))
             })
 
     override fun invalidateDataSource(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
@@ -54,13 +54,17 @@ class UserWithReposViewModel(
             }
             .subscribe({ usersWithRepos ->
                 currentPage = 2
-                _refreshState.postValue(NetworkState.Loaded)
-                if (usersWithRepos.isNotEmpty()) {
-                    callback(usersWithRepos)
+                callback(usersWithRepos)
+                if (usersWithRepos.isEmpty()) {
+                    _pagedListState.postValue(PagedListState.Empty)
+                } else {
+                    _pagedListState.postValue(PagedListState.Loaded)
                 }
+                _refreshState.postValue(NetworkState.Loaded)
             }, {
                 // TODO: Show error in a Snackbar.
                 Timber.e(it)
+                _refreshState.postValue(NetworkState.Error(it))
             })
 
     @Suppress("UNCHECKED_CAST")

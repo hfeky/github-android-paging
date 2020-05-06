@@ -5,8 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
-import com.husseinelfeky.githubpaging.common.utils.addToCompositeDisposable
-import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
@@ -14,7 +12,7 @@ abstract class PagingViewModel<Entity> : ViewModel() {
 
     protected val compositeDisposable = CompositeDisposable()
 
-    private lateinit var pagedListDisposable: Disposable
+    private var pagedListDisposable: Disposable? = null
 
     protected val _pagedListState = MutableLiveData<PagedListState>()
     val pagedListState: LiveData<PagedListState>
@@ -34,28 +32,25 @@ abstract class PagingViewModel<Entity> : ViewModel() {
 
     abstract fun loadNextPage(callback: ItemsLoadedCallback<Entity>): Disposable
 
-    abstract fun invalidateDataSource(callback: ItemsLoadedCallback<UserWithRepos>): Disposable
+    abstract fun invalidateDataSource(callback: ItemsLoadedCallback<Entity>): Disposable
 
-    open fun retryFetchingNextPage(callback: ItemsLoadedCallback<Entity>) {
+    fun retryFetchingNextPage(callback: ItemsLoadedCallback<Entity>) {
         fetchNextPage(callback, true)
     }
 
-    private fun clearPagedListDisposable() {
-        if (::pagedListDisposable.isInitialized) {
-            compositeDisposable.remove(pagedListDisposable)
-        }
-    }
-
     fun fetchInitialPage(callback: ItemsLoadedCallback<Entity>) {
-        clearPagedListDisposable()
+        pagedListDisposable?.dispose()
         pagedListDisposable = loadInitialPage(callback)
-            .addToCompositeDisposable(compositeDisposable)
     }
 
     private fun fetchNextPageInternal(callback: ItemsLoadedCallback<Entity>) {
-        clearPagedListDisposable()
+        pagedListDisposable?.dispose()
         pagedListDisposable = loadNextPage(callback)
-            .addToCompositeDisposable(compositeDisposable)
+    }
+
+    fun refresh(callback: ItemsLoadedCallback<Entity>) {
+        pagedListDisposable?.dispose()
+        pagedListDisposable = invalidateDataSource(callback)
     }
 
     /**
@@ -75,6 +70,7 @@ abstract class PagingViewModel<Entity> : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
+        pagedListDisposable?.dispose()
         compositeDisposable.clear()
     }
 }

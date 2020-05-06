@@ -1,4 +1,4 @@
-package com.husseinelfeky.githubpaging.common.utils
+package com.husseinelfeky.githubpaging.common.paging.utils
 
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable

@@ -28,7 +28,7 @@ class UserWithReposActivity : AppCompatActivity() {
             listAdapter.updateList(list)
             Toast.makeText(
                 this@UserWithReposActivity,
-                "${listAdapter.itemCount} items loaded",
+                "${list.size} users loaded",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -106,7 +106,7 @@ class UserWithReposActivity : AppCompatActivity() {
 
     private fun initListeners() {
         swipe_refresh.setOnRefreshListener {
-            viewModel.invalidateDataSource(onItemsLoadedCallback)
+            viewModel.refresh(onItemsLoadedCallback)
         }
     }
 

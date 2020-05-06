@@ -11,7 +11,7 @@ abstract class PagingAdapter<Entity> : ListAdapter<PagingItem, RecyclerView.View
 ) {
 
     private val uiDispatcher = Dispatchers.Main
-    private val backgroundScope = CoroutineScope(Dispatchers.IO)
+    private val backgroundScope = CoroutineScope(Dispatchers.Default)
 
     private var conversionJob: Job? = null
 

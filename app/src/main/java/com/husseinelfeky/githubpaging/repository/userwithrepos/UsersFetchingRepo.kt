@@ -14,10 +14,10 @@ class UsersFetchingRepo : IPagedCaching<User> {
      * how pagination works for GitHub users.
      */
     override fun fetchItemsFromNetwork(page: Int, vararg params: Any) =
-        UserWithReposDataSource.gitHubApi.getUsers((page - 1) * getPageSize(), getPageSize())
+        UserWithReposDataSource.gitHubApi.getUsers(getOffset(page), getPageSize())
 
     override fun fetchItemsFromDB(page: Int, vararg params: Any) =
-        db.getUsers(getPageSize(), (page - 1) * getPageSize())
+        db.getUsers(getPageSize(), getOffset(page))
 
     override fun saveItemsToLocalDB(itemsList: List<User>) = db.insertUsers(itemsList)
 

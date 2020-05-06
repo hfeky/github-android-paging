@@ -7,6 +7,8 @@ interface IPagedCaching<Entity> : IBaseCaching<Entity> {
 
     fun getPageSize(): Int
 
+    fun getOffset(page: Int) = (page - 1) * getPageSize()
+
     fun fetchItemsFromNetwork(page: Int, vararg params: Any): Single<List<Entity>>
 
     fun fetchItemsFromDB(page: Int, vararg params: Any): Single<List<Entity>>
