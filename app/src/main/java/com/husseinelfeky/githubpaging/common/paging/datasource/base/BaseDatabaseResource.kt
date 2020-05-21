@@ -1,6 +1,6 @@
 package com.husseinelfeky.githubpaging.common.paging.datasource.base
 
-abstract class BaseDatabaseResource : BaseDataSource() {
+abstract class BaseDatabaseResource : PagingSource() {
 
     fun getItemsLimit(page: Int) = page * getPageSize()
 
@@ -12,6 +12,4 @@ abstract class BaseDatabaseResource : BaseDataSource() {
             getTotalPages().onNext(Int.MAX_VALUE)
         }
     }
-
-    abstract fun getPageSize(): Int
 }

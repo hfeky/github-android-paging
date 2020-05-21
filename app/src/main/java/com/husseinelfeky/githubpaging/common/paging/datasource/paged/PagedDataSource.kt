@@ -9,11 +9,7 @@ import timber.log.Timber
 /**
  * @param Entity Type of items being loaded by the [PagedDataSource].
  */
-abstract class PagedDataSource<Entity : Any> : BaseDataSource() {
-
-    private val pagedList = LinkedHashSet<Entity>()
-
-    fun getPagedList(): LinkedHashSet<Entity> = pagedList
+abstract class PagedDataSource<Entity : Any> : BaseDataSource<Entity>() {
 
     fun getOffset(page: Int) = (page - 1) * getPageSize()
 
@@ -74,8 +70,6 @@ abstract class PagedDataSource<Entity : Any> : BaseDataSource() {
             items
         }
     }
-
-    abstract fun getPageSize(): Int
 
     protected abstract fun fetchItemsFromNetwork(
         page: Int,

@@ -1,10 +1,8 @@
 package com.husseinelfeky.githubpaging.common.paging.datasource.base
 
-import io.reactivex.subjects.BehaviorSubject
+abstract class BaseDataSource<Entity> : PagingSource() {
 
-abstract class BaseDataSource {
+    private val pagedList = LinkedHashSet<Entity>()
 
-    private val totalPages = BehaviorSubject.createDefault(Int.MAX_VALUE)
-
-    fun getTotalPages(): BehaviorSubject<Int> = totalPages
+    fun getPagedList(): LinkedHashSet<Entity> = pagedList
 }

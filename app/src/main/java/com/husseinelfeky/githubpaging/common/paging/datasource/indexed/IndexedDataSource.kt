@@ -10,13 +10,7 @@ import timber.log.Timber
  * @param Index Type of data used to query Entity types out of the [IndexedDataSource].
  * @param Entity Type of items being loaded by the [IndexedDataSource].
  */
-abstract class IndexedDataSource<Index : Any, Entity : Any> : BaseDataSource() {
-
-    private val pagedList = LinkedHashSet<Entity>()
-
-    fun getPagedList(): LinkedHashSet<Entity> = pagedList
-
-    fun getOffset(page: Int) = (page - 1) * getPageSize()
+abstract class IndexedDataSource<Index : Any, Entity : Any> : BaseDataSource<Entity>() {
 
     fun fetchItems(
         item: Index,
@@ -75,8 +69,6 @@ abstract class IndexedDataSource<Index : Any, Entity : Any> : BaseDataSource() {
             items
         }
     }
-
-    abstract fun getPageSize(): Int
 
     protected abstract fun fetchItemsFromNetwork(
         item: Index,
