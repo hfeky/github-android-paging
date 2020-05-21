@@ -24,7 +24,7 @@ abstract class IndexedDataSource<Index : Any, Entity : Any> : BaseDataSource<Ent
                         Timber.e(throwable, "Failed to fetch items from cache.")
                     }
                     .flatMap {
-                        if (it.isEmpty()) {
+                        if (shouldFetchFromNetwork(it)) {
                             return@flatMap fetchAndSaveIfRequired(item, *params)
                         }
                         // If local database items exist, return them.

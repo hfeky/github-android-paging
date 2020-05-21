@@ -10,6 +10,10 @@ import timber.log.Timber
  */
 abstract class NormalDataSource<Entity : Any> {
 
+    open fun shouldFetchFromNetwork(databaseItems: List<Entity>): Boolean {
+        return databaseItems.isEmpty()
+    }
+
     fun fetchItems(
         fetchingStrategy: FetchingStrategy = FetchingStrategy.NETWORK_FIRST,
         vararg params: Any
@@ -21,7 +25,7 @@ abstract class NormalDataSource<Entity : Any> {
                         Timber.e(throwable, "Failed to fetch items from cache.")
                     }
                     .flatMap {
-                        if (it.isEmpty()) {
+                        if (shouldFetchFromNetwork(it)) {
                             return@flatMap fetchAndSaveIfRequired(*params)
                         }
                         // If local database items exist, return them.
