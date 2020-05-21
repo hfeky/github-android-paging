@@ -1,17 +1,20 @@
 package com.husseinelfeky.githubpaging.repository.userwithrepos
 
-import com.husseinelfeky.githubpaging.common.paging.caching.FetchingStrategy
+import com.husseinelfeky.githubpaging.common.paging.datasource.common.FetchingStrategy
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
 
 class UserWithReposRepository(
     private val usersFetchingRepo: UsersFetchingRepo = UsersFetchingRepo(),
     private val gitHubReposFetchingRepo: GitHubReposFetchingRepo = GitHubReposFetchingRepo()
 ) {
+
+    fun getTotalPages(): BehaviorSubject<Int> = usersFetchingRepo.getTotalPages()
 
     fun getUsersWithRepos(
         page: Int,

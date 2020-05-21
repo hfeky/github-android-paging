@@ -1,69 +1,73 @@
-package com.husseinelfeky.githubpaging.common.paging.caching
+package com.husseinelfeky.githubpaging.common.paging.datasource.normal
 
+import com.husseinelfeky.githubpaging.common.paging.datasource.common.CachingLayer
+import com.husseinelfeky.githubpaging.common.paging.datasource.common.FetchingStrategy
 import io.reactivex.Single
 import timber.log.Timber
 
-interface IPagedCaching<Entity> : IBaseCaching<Entity> {
-
-    fun getPageSize(): Int
-
-    fun getOffset(page: Int) = (page - 1) * getPageSize()
-
-    fun fetchItemsFromNetwork(page: Int, vararg params: Any): Single<List<Entity>>
-
-    fun fetchItemsFromDB(page: Int, vararg params: Any): Single<List<Entity>>
+/**
+ * @param Entity Type of items being loaded by the [NormalDataSource].
+ */
+abstract class NormalDataSource<Entity : Any> {
 
     fun fetchItems(
-        page: Int,
-        fetchingStrategy: FetchingStrategy = FetchingStrategy.CACHE_FIRST,
+        fetchingStrategy: FetchingStrategy = FetchingStrategy.NETWORK_FIRST,
         vararg params: Any
     ): Single<List<Entity>> {
         when (fetchingStrategy) {
             FetchingStrategy.CACHE_FIRST -> {
-                return fetchItemsFromDB(page, *params)
+                return fetchItemsFromDatabase(*params)
                     .doOnError { throwable ->
                         Timber.e(throwable, "Failed to fetch items from cache.")
                     }
                     .flatMap {
                         if (it.isEmpty()) {
-                            return@flatMap fetchAndSave(page, *params)
+                            return@flatMap fetchAndSaveIfRequired(*params)
                         }
                         // If local database items exist, return them.
                         return@flatMap Single.just(it)
                     }
             }
             FetchingStrategy.NETWORK_FIRST -> {
-                return fetchAndSave(page, *params)
+                return fetchAndSaveIfRequired(*params)
                     .onErrorResumeNext {
-                        return@onErrorResumeNext fetchItemsFromDB(page, *params)
+                        return@onErrorResumeNext fetchItemsFromDatabase(*params)
                             .doOnError { throwable ->
                                 Timber.e(throwable, "Failed to fetch items from cache.")
                             }
                     }
             }
             FetchingStrategy.CACHE_ONLY -> {
-                return fetchItemsFromDB(page, *params)
+                return fetchItemsFromDatabase(*params)
                     .doOnError { throwable ->
                         Timber.e(throwable, "Failed to fetch items from cache.")
                     }
             }
             FetchingStrategy.NETWORK_ONLY -> {
-                return fetchAndSave(page, *params)
+                return fetchAndSaveIfRequired(*params)
             }
         }
     }
 
-    private fun fetchAndSave(page: Int, vararg params: Any): Single<List<Entity>> {
-        return fetchItemsFromNetwork(page, *params)
+    private fun fetchAndSaveIfRequired(vararg params: Any): Single<List<Entity>> {
+        val items = fetchItemsFromNetwork(*params)
             .doOnError { throwable ->
                 Timber.e(throwable, "Failed to fetch items from network.")
             }
-            .flatMap { list ->
-                saveItemsToLocalDB(list)
+        return if (this is CachingLayer) {
+            items.flatMap { list ->
+                saveItemsToDatabase(list)
                     .doOnError { throwable ->
-                        Timber.e(throwable, "Failed to save to local database.")
+                        Timber.e(throwable, "Failed to save items to database.")
                     }
                     .andThen(Single.just(list))
             }
+        } else {
+            items
+        }
     }
+
+    protected abstract fun fetchItemsFromNetwork(vararg params: Any): Single<List<Entity>>
+
+    protected abstract fun fetchItemsFromDatabase(vararg params: Any): Single<List<Entity>>
 }

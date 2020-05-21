@@ -20,7 +20,12 @@ class NetworkStateViewHolder(
     fun bind(networkState: NetworkState) {
         with(itemView) {
             tv_error.text = if (networkState is NetworkState.Error) {
-                networkState.error.localizedMessage
+                val messageRes = networkState.messageRes
+                if (messageRes != null) {
+                    resources.getString(messageRes)
+                } else {
+                    networkState.error.localizedMessage
+                }
             } else {
                 null
             }

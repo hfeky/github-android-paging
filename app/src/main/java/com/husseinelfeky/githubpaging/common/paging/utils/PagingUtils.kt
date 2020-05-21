@@ -2,10 +2,12 @@ package com.husseinelfeky.githubpaging.common.paging.utils
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.husseinelfeky.githubpaging.common.paging.base.PagingCallback
+import com.husseinelfeky.githubpaging.common.paging.base.PagingSetupCallback
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 
 fun RecyclerView.setupPaging(
-    pagingCallback: PagingCallback,
+    pagingSetupCallback: PagingSetupCallback,
     prefetchDistance: Int = 20,
     pagingDirection: PagingDirection = PagingDirection.DOWN
 ) {
@@ -23,7 +25,7 @@ fun RecyclerView.setupPaging(
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (layoutManager.itemCount - layoutManager.findLastVisibleItemPosition() <= prefetchDistance) {
-                    pagingCallback.onLoadMoreItems()
+                    pagingSetupCallback.onLoadMoreItems()
                 }
             }
         })
@@ -32,11 +34,16 @@ fun RecyclerView.setupPaging(
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (layoutManager.findFirstVisibleItemPosition() <= prefetchDistance) {
-                    pagingCallback.onLoadMoreItems()
+                    pagingSetupCallback.onLoadMoreItems()
                 }
             }
         })
     }
 
-    pagingCallback.onSetupFinish()
+    pagingSetupCallback.onSetupFinish()
+}
+
+fun Disposable.addTo(compositeDisposable: CompositeDisposable): Disposable {
+    compositeDisposable.add(this)
+    return this
 }

@@ -8,7 +8,7 @@ import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
-abstract class PagingViewModel<Entity> : ViewModel() {
+abstract class PagingViewModel<Entity : Any> : ViewModel() {
 
     protected val compositeDisposable = CompositeDisposable()
 
@@ -28,11 +28,15 @@ abstract class PagingViewModel<Entity> : ViewModel() {
 
     var currentPage = 1
 
-    abstract fun loadInitialPage(callback: ItemsLoadedCallback<Entity>): Disposable
+    var hasMorePages = true
 
-    abstract fun loadNextPage(callback: ItemsLoadedCallback<Entity>): Disposable
+    protected abstract fun loadInitialPage(callback: ItemsLoadedCallback<Entity>): Disposable
 
-    abstract fun invalidateDataSource(callback: ItemsLoadedCallback<Entity>): Disposable
+    protected abstract fun loadNextPage(callback: ItemsLoadedCallback<Entity>): Disposable
+
+    protected abstract fun invalidateDataSource(callback: ItemsLoadedCallback<Entity>): Disposable
+
+    protected abstract fun observeTotalPages()
 
     fun retryFetchingNextPage(callback: ItemsLoadedCallback<Entity>) {
         fetchNextPage(callback, true)
@@ -54,14 +58,14 @@ abstract class PagingViewModel<Entity> : ViewModel() {
     }
 
     /**
-     *  Do not fetch next page if it is already fetching or there is an error
-     *  unless it is a forced fetch.
+     *  Fetch next page if it is not already fetching or there isn't an error unless
+     *  it is a forced fetch, but only if there are more pages to be loaded.
      */
     fun fetchNextPage(
         callback: ItemsLoadedCallback<Entity>,
         forceFetch: Boolean = false
     ): Boolean {
-        if (forceFetch || !(_networkState.value is NetworkState.Loading || _networkState.value is NetworkState.Error)) {
+        if (hasMorePages && (forceFetch || !(_networkState.value is NetworkState.Loading || _networkState.value is NetworkState.Error))) {
             fetchNextPageInternal(callback)
             return true
         }
@@ -70,7 +74,7 @@ abstract class PagingViewModel<Entity> : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        pagedListDisposable?.dispose()
         compositeDisposable.clear()
+        pagedListDisposable?.dispose()
     }
 }

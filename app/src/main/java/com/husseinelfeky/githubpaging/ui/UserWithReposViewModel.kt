@@ -6,6 +6,7 @@ import com.husseinelfeky.githubpaging.common.paging.base.ItemsLoadedCallback
 import com.husseinelfeky.githubpaging.common.paging.base.PagingViewModel
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
+import com.husseinelfeky.githubpaging.common.paging.utils.addTo
 import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
 import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
 import io.reactivex.disposables.Disposable
@@ -14,6 +15,10 @@ import timber.log.Timber
 class UserWithReposViewModel(
     private val fetchingRepo: UserWithReposRepository
 ) : PagingViewModel<UserWithRepos>() {
+
+    init {
+        observeTotalPages()
+    }
 
     override fun loadInitialPage(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
         fetchingRepo.getUsersWithRepos(1)
@@ -65,6 +70,14 @@ class UserWithReposViewModel(
                 Timber.e(it)
                 _refreshState.postValue(NetworkState.Error(it))
             })
+
+    override fun observeTotalPages() {
+        fetchingRepo.getTotalPages()
+            .subscribe { totalPages ->
+                hasMorePages = currentPage < totalPages
+            }
+            .addTo(compositeDisposable)
+    }
 
     @Suppress("UNCHECKED_CAST")
     class Factory(private val fetchingRepo: UserWithReposRepository) : ViewModelProvider.Factory {

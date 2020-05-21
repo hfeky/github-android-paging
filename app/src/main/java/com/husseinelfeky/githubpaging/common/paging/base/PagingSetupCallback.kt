@@ -1,6 +1,6 @@
 package com.husseinelfeky.githubpaging.common.paging.base
 
-interface PagingCallback {
+interface PagingSetupCallback {
 
     fun onSetupFinish()
 

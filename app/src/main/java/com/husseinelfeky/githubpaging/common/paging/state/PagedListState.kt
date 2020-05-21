@@ -6,6 +6,8 @@ sealed class PagedListState {
 
     object Loaded : PagedListState()
 
+    object Updating : PagedListState()
+
     object Empty : PagedListState()
 
     data class Error(val error: Throwable) : PagedListState() {

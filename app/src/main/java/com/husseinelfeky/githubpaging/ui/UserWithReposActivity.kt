@@ -11,7 +11,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.husseinelfeky.githubpaging.R
 import com.husseinelfeky.githubpaging.common.paging.adapter.NetworkStateAdapter
 import com.husseinelfeky.githubpaging.common.paging.base.ItemsLoadedCallback
-import com.husseinelfeky.githubpaging.common.paging.base.PagingCallback
+import com.husseinelfeky.githubpaging.common.paging.base.PagingSetupCallback
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
 import com.husseinelfeky.githubpaging.common.paging.utils.setupPaging
@@ -101,7 +101,7 @@ class UserWithReposActivity : AppCompatActivity() {
     private fun initAdapter() {
         recycler_view.adapter = MergeAdapter(listAdapter, networkStateAdapter)
 
-        recycler_view.setupPaging(object : PagingCallback {
+        recycler_view.setupPaging(object : PagingSetupCallback {
             override fun onSetupFinish() {
                 viewModel.fetchInitialPage(onItemsLoadedCallback)
             }
