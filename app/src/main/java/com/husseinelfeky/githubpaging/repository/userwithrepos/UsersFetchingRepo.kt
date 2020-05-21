@@ -1,26 +1,24 @@
 package com.husseinelfeky.githubpaging.repository.userwithrepos
 
-import com.husseinelfeky.githubpaging.common.paging.datasource.paged.PagedDataSource
 import com.husseinelfeky.githubpaging.common.paging.datasource.common.CachingLayer
+import com.husseinelfeky.githubpaging.common.paging.datasource.indexed.IndexedDataSource
 import com.husseinelfeky.githubpaging.persistence.entities.User
 import io.reactivex.Completable
 
-class UsersFetchingRepo : PagedDataSource<User>(), CachingLayer {
+class UsersFetchingRepo : IndexedDataSource<Long, User>(), CachingLayer {
 
-    private val db = UserWithReposDataSource.gitHubDao
+    private val api = UserWithReposDataSource.gitHubApi
+
+    private val dao = UserWithReposDataSource.gitHubDao
 
     override fun getPageSize(): Int = 2
 
-    /**
-     * @see com.husseinelfeky.githubpaging.api.GitHubApi.getUsers to understand
-     * how pagination works for GitHub users.
-     */
-    override fun fetchItemsFromNetwork(page: Int, vararg params: Any) =
-        UserWithReposDataSource.gitHubApi.getUsers(getOffset(page), getPageSize())
+    override fun fetchItemsFromNetwork(item: Long, vararg params: Any) =
+        api.getUsers(item, getPageSize())
 
-    override fun fetchItemsFromDatabase(page: Int, vararg params: Any) =
-        db.getUsers(getPageSize(), getOffset(page))
+    override fun fetchItemsFromDatabase(item: Long, vararg params: Any) =
+        dao.getUsers(getPageSize(), item)
 
     override fun saveItemsToDatabase(itemsList: List<Any>): Completable =
-        db.insertUsers(itemsList as List<User>)
+        dao.insertUsers(itemsList as List<User>)
 }

@@ -17,10 +17,10 @@ class UserWithReposRepository(
     fun getTotalPages(): BehaviorSubject<Int> = usersFetchingRepo.getTotalPages()
 
     fun getUsersWithRepos(
-        page: Int,
+        item: Long,
         fetchingStrategy: FetchingStrategy = FetchingStrategy.NETWORK_FIRST
     ): Flowable<List<UserWithRepos>> {
-        return usersFetchingRepo.fetchItems(page)
+        return usersFetchingRepo.fetchItems(item)
             .doOnSuccess {
                 Timber.i("Fetched ${it.size} users")
             }
@@ -51,7 +51,7 @@ class UserWithReposRepository(
             .ignoreElements()
             .andThen(
                 UserWithReposDataSource.gitHubDao.getUsersWithRepos(
-                    usersFetchingRepo.getPageSize() * page
+                    item + usersFetchingRepo.getPageSize()
                 )
             )
             .subscribeOn(Schedulers.io())

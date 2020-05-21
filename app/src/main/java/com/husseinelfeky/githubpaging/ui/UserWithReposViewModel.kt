@@ -16,17 +16,19 @@ class UserWithReposViewModel(
     private val fetchingRepo: UserWithReposRepository
 ) : PagingViewModel<UserWithRepos>() {
 
+    var currentItem = 0L
+
     init {
         observeTotalPages()
     }
 
     override fun loadInitialPage(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
-        fetchingRepo.getUsersWithRepos(1)
+        fetchingRepo.getUsersWithRepos(0)
             .doOnSubscribe {
                 _pagedListState.postValue(PagedListState.Loading)
             }
             .subscribe({ usersWithRepos ->
-                currentPage = 2
+                currentItem = usersWithRepos.last().user.id
                 callback(usersWithRepos)
                 if (usersWithRepos.isEmpty()) {
                     _pagedListState.postValue(PagedListState.Empty)
@@ -39,12 +41,12 @@ class UserWithReposViewModel(
             })
 
     override fun loadNextPage(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
-        fetchingRepo.getUsersWithRepos(currentPage)
+        fetchingRepo.getUsersWithRepos(currentItem)
             .doOnSubscribe {
                 _networkState.postValue(NetworkState.Loading)
             }
             .subscribe({ usersWithRepos ->
-                currentPage++
+                currentItem = usersWithRepos.last().user.id
                 callback(usersWithRepos)
                 _networkState.postValue(NetworkState.Loaded)
             }, {
@@ -53,12 +55,12 @@ class UserWithReposViewModel(
             })
 
     override fun invalidateDataSource(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
-        fetchingRepo.getUsersWithRepos(1)
+        fetchingRepo.getUsersWithRepos(0)
             .doOnSubscribe {
                 _refreshState.postValue(NetworkState.Loading)
             }
             .subscribe({ usersWithRepos ->
-                currentPage = 2
+                currentItem = usersWithRepos.last().user.id
                 callback(usersWithRepos)
                 if (usersWithRepos.isEmpty()) {
                     _pagedListState.postValue(PagedListState.Empty)
