@@ -11,12 +11,24 @@ import timber.log.Timber
  */
 abstract class PagedDataSource<Entity : Any> : BaseDataSource<Entity>() {
 
+    protected fun updateNetworkEndPosition(totalPages: Int) {
+        getEndPosition().onNext(totalPages)
+    }
+
+    protected fun updateDatabaseEndPosition(currentPage: Int, itemsSize: Int) {
+        if (itemsSize < getPageSize()) {
+            getEndPosition().onNext(currentPage + 1)
+        } else if (itemsSize == getPageSize()) {
+            getEndPosition().onNext(currentPage + 2)
+        }
+    }
+
     fun getOffset(page: Int) = (page - 1) * getPageSize()
 
     fun fetchItems(
         page: Int,
         fetchingStrategy: FetchingStrategy = FetchingStrategy.NETWORK_FIRST,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>> {
         when (fetchingStrategy) {
             FetchingStrategy.CACHE_FIRST -> {
@@ -53,7 +65,7 @@ abstract class PagedDataSource<Entity : Any> : BaseDataSource<Entity>() {
         }
     }
 
-    private fun fetchAndSaveIfRequired(page: Int, vararg params: Any): Single<List<Entity>> {
+    private fun fetchAndSaveIfRequired(page: Int, vararg params: Any?): Single<List<Entity>> {
         val items = fetchItemsFromNetwork(page, *params)
             .doOnError { throwable ->
                 Timber.e(throwable, "Failed to fetch items from network.")
@@ -73,11 +85,11 @@ abstract class PagedDataSource<Entity : Any> : BaseDataSource<Entity>() {
 
     protected abstract fun fetchItemsFromNetwork(
         page: Int,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>>
 
     protected abstract fun fetchItemsFromDatabase(
         page: Int,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>>
 }

@@ -6,7 +6,7 @@ import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.viewholder.NetworkStateViewHolder
 
 class NetworkStateAdapter(
-    private val retryAction: () -> Unit
+    private val retryCallback: () -> Unit
 ) : RecyclerView.Adapter<NetworkStateViewHolder>() {
 
     var networkState: NetworkState = NetworkState.Loaded
@@ -28,7 +28,7 @@ class NetworkStateAdapter(
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NetworkStateViewHolder {
-        return NetworkStateViewHolder.create(parent, retryAction)
+        return NetworkStateViewHolder.create(parent, retryCallback)
     }
 
     override fun onBindViewHolder(holder: NetworkStateViewHolder, position: Int) {

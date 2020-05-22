@@ -10,7 +10,7 @@ import timber.log.Timber
  */
 abstract class PagedNetworkResource<Entity : Any> : BaseNetworkResource<Entity>() {
 
-    fun fetchAndSaveIfRequired(page: Int, vararg params: Any): Single<List<Entity>> {
+    fun fetchAndSaveIfRequired(page: Int, vararg params: Any?): Single<List<Entity>> {
         val items = fetchItemsFromNetwork(page, *params)
             .doOnError { throwable ->
                 Timber.e(throwable, "Failed to fetch items from network.")
@@ -30,6 +30,6 @@ abstract class PagedNetworkResource<Entity : Any> : BaseNetworkResource<Entity>(
 
     protected abstract fun fetchItemsFromNetwork(
         page: Int,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>>
 }

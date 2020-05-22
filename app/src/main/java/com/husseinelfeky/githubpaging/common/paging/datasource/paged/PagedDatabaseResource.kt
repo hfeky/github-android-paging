@@ -10,6 +10,6 @@ abstract class PagedDatabaseResource<Entity : Any> : BaseDatabaseResource() {
 
     protected abstract fun fetchItemsFromDatabaseUntil(
         page: Int,
-        vararg params: Any
+        vararg params: Any?
     ): Flowable<List<Entity>>
 }

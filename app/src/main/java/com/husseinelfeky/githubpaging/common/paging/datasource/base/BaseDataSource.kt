@@ -4,9 +4,9 @@ abstract class BaseDataSource<Entity> : PagingSource() {
 
     private val pagedList = LinkedHashSet<Entity>()
 
-    fun getPagedList(): LinkedHashSet<Entity> = pagedList
+    protected fun getPagedList(): LinkedHashSet<Entity> = pagedList
 
-    open fun shouldFetchFromNetwork(databaseItems: List<Entity>): Boolean {
+    protected open fun shouldFetchFromNetwork(databaseItems: List<Entity>): Boolean {
         return databaseItems.isEmpty()
     }
 }

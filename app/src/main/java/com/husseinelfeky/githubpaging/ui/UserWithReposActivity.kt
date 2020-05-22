@@ -30,7 +30,7 @@ class UserWithReposActivity : AppCompatActivity() {
             Toast.makeText(
                 this@UserWithReposActivity,
                 "${list.size} users loaded",
-                Toast.LENGTH_LONG
+                Toast.LENGTH_SHORT
             ).show()
         }
     }
@@ -101,7 +101,7 @@ class UserWithReposActivity : AppCompatActivity() {
     private fun initAdapter() {
         recycler_view.adapter = MergeAdapter(listAdapter, networkStateAdapter)
 
-        recycler_view.setupPaging(object : PagingSetupCallback {
+        recycler_view.setupPaging(listAdapter, object : PagingSetupCallback {
             override fun onSetupFinish() {
                 viewModel.fetchInitialPage(onItemsLoadedCallback)
             }

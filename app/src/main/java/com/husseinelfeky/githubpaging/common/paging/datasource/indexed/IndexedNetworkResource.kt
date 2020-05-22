@@ -11,7 +11,7 @@ import timber.log.Timber
  */
 abstract class IndexedNetworkResource<Index : Any, Entity : Any> : BaseNetworkResource<Entity>() {
 
-    fun fetchAndSaveIfRequired(item: Index, vararg params: Any): Single<List<Entity>> {
+    fun fetchAndSaveIfRequired(item: Index, vararg params: Any?): Single<List<Entity>> {
         val items = fetchItemsFromNetwork(item, *params)
             .doOnError { throwable ->
                 Timber.e(throwable, "Failed to fetch items from network.")
@@ -31,6 +31,6 @@ abstract class IndexedNetworkResource<Index : Any, Entity : Any> : BaseNetworkRe
 
     protected abstract fun fetchItemsFromNetwork(
         page: Index,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>>
 }

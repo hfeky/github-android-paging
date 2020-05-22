@@ -7,7 +7,7 @@ import com.squareup.moshi.Json
 
 @Entity(tableName = "users")
 data class User(
-    @PrimaryKey val id: Long,
+    @PrimaryKey val id: Int,
     @Json(name = "login")
     val userName: String,
     @Json(name = "avatar_url")

@@ -9,9 +9,11 @@ sealed class NetworkState {
     object Loaded : NetworkState()
 
     data class Error(
-        val error: Throwable,
+        val error: Throwable? = null,
         @StringRes val messageRes: Int? = null
     ) : NetworkState() {
-        override fun toString() = "Error: $error"
+        override fun toString(): String {
+            return error?.localizedMessage ?: "Unknown Error"
+        }
     }
 }

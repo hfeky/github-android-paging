@@ -15,6 +15,12 @@ abstract class PagingAdapter<Entity> : ListAdapter<PagingItem, RecyclerView.View
 
     private var conversionJob: Job? = null
 
+    private var onListUpdatedCallback: (() -> Unit)? = null
+
+    fun setOnListUpdatedCallback(onListUpdatedCallback: () -> Unit) {
+        this.onListUpdatedCallback = onListUpdatedCallback
+    }
+
     fun updateList(list: List<Entity>) {
         conversionJob?.let { job ->
             if (job.isActive) {
@@ -25,7 +31,7 @@ abstract class PagingAdapter<Entity> : ListAdapter<PagingItem, RecyclerView.View
         conversionJob = backgroundScope.launch {
             convertList(list).also { pagingItems ->
                 withContext(uiDispatcher) {
-                    submitList(pagingItems)
+                    submitList(pagingItems, onListUpdatedCallback)
                 }
             }
         }

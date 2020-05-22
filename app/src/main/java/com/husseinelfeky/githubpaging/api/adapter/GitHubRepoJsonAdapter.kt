@@ -10,8 +10,8 @@ class GitHubRepoJsonAdapter : JsonAdapter<GitHubRepo>() {
         val jsonMap = reader.readJsonValue() as Map<*, *>
         val user = jsonMap["owner"] as Map<*, *>
         return GitHubRepo(
-            (jsonMap["id"] as Double).toLong(),
-            (user["id"] as Double).toLong(),
+            (jsonMap["id"] as Double).toInt(),
+            (user["id"] as Double).toInt(),
             jsonMap["name"] as String
         )
     }

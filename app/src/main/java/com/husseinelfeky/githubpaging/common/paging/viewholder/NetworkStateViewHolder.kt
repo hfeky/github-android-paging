@@ -24,7 +24,7 @@ class NetworkStateViewHolder(
                 if (messageRes != null) {
                     resources.getString(messageRes)
                 } else {
-                    networkState.error.localizedMessage
+                    networkState.toString()
                 }
             } else {
                 null

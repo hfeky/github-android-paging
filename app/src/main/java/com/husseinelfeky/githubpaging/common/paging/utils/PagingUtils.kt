@@ -2,11 +2,13 @@ package com.husseinelfeky.githubpaging.common.paging.utils
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.husseinelfeky.githubpaging.common.paging.adapter.PagingAdapter
 import com.husseinelfeky.githubpaging.common.paging.base.PagingSetupCallback
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
 fun RecyclerView.setupPaging(
+    pagingAdapter: PagingAdapter<*>,
     pagingSetupCallback: PagingSetupCallback,
     prefetchDistance: Int = 20,
     pagingDirection: PagingDirection = PagingDirection.DOWN
@@ -20,25 +22,29 @@ fun RecyclerView.setupPaging(
     }
 
     val layoutManager = layoutManager as (LinearLayoutManager)
-    if (pagingDirection == PagingDirection.DOWN) {
-        addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (layoutManager.itemCount - layoutManager.findLastVisibleItemPosition() <= prefetchDistance) {
-                    pagingSetupCallback.onLoadMoreItems()
-                }
+
+    val updateCallback = if (pagingDirection == PagingDirection.DOWN) {
+        {
+            if (layoutManager.itemCount - layoutManager.findLastVisibleItemPosition() <= prefetchDistance) {
+                pagingSetupCallback.onLoadMoreItems()
             }
-        })
+        }
     } else {
-        addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (layoutManager.findFirstVisibleItemPosition() <= prefetchDistance) {
-                    pagingSetupCallback.onLoadMoreItems()
-                }
+        {
+            if (layoutManager.findFirstVisibleItemPosition() <= prefetchDistance) {
+                pagingSetupCallback.onLoadMoreItems()
             }
-        })
+        }
     }
+
+    pagingAdapter.setOnListUpdatedCallback(updateCallback)
+
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            updateCallback.invoke()
+        }
+    })
 
     pagingSetupCallback.onSetupFinish()
 }

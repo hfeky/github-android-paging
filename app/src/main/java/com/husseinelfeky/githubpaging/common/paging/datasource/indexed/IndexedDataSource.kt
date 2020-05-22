@@ -12,10 +12,22 @@ import timber.log.Timber
  */
 abstract class IndexedDataSource<Index : Any, Entity : Any> : BaseDataSource<Entity>() {
 
+    protected fun updateNetworkEndPosition(lastItem: Int) {
+        getEndPosition().onNext(lastItem)
+    }
+
+    protected fun updateDatabaseEndPosition(currentItem: Int, itemsSize: Int) {
+        if (itemsSize < getPageSize()) {
+            getEndPosition().onNext(currentItem)
+        } else if (itemsSize == getPageSize()) {
+            getEndPosition().onNext(Int.MAX_VALUE)
+        }
+    }
+
     fun fetchItems(
         item: Index,
         fetchingStrategy: FetchingStrategy = FetchingStrategy.NETWORK_FIRST,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>> {
         when (fetchingStrategy) {
             FetchingStrategy.CACHE_FIRST -> {
@@ -52,7 +64,7 @@ abstract class IndexedDataSource<Index : Any, Entity : Any> : BaseDataSource<Ent
         }
     }
 
-    private fun fetchAndSaveIfRequired(item: Index, vararg params: Any): Single<List<Entity>> {
+    private fun fetchAndSaveIfRequired(item: Index, vararg params: Any?): Single<List<Entity>> {
         val items = fetchItemsFromNetwork(item, *params)
             .doOnError { throwable ->
                 Timber.e(throwable, "Failed to fetch items from network.")
@@ -72,11 +84,11 @@ abstract class IndexedDataSource<Index : Any, Entity : Any> : BaseDataSource<Ent
 
     protected abstract fun fetchItemsFromNetwork(
         item: Index,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>>
 
     protected abstract fun fetchItemsFromDatabase(
         item: Index,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>>
 }

@@ -7,6 +7,7 @@ import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
 import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import kotlin.properties.Delegates
 
 abstract class PagingViewModel<Entity : Any> : ViewModel() {
 
@@ -26,9 +27,12 @@ abstract class PagingViewModel<Entity : Any> : ViewModel() {
     val refreshState: LiveData<NetworkState>
         get() = _refreshState
 
-    var currentPage = 1
+    protected var currentKey: Int by Delegates.observable(0) { _, _, newValue ->
+        hasMorePages = newValue < endPosition
+    }
+    protected var endPosition = Int.MAX_VALUE
 
-    var hasMorePages = true
+    protected var hasMorePages = true
 
     protected abstract fun loadInitialPage(callback: ItemsLoadedCallback<Entity>): Disposable
 
@@ -36,7 +40,7 @@ abstract class PagingViewModel<Entity : Any> : ViewModel() {
 
     protected abstract fun invalidateDataSource(callback: ItemsLoadedCallback<Entity>): Disposable
 
-    protected abstract fun observeTotalPages()
+    protected abstract fun observeEndPosition()
 
     fun retryFetchingNextPage(callback: ItemsLoadedCallback<Entity>) {
         fetchNextPage(callback, true)
@@ -58,14 +62,17 @@ abstract class PagingViewModel<Entity : Any> : ViewModel() {
     }
 
     /**
-     *  Fetch next page if it is not already fetching or there isn't an error unless
-     *  it is a forced fetch, but only if there are more pages to be loaded.
+     *  If it is a forced fetch, fetch next page directly. If not, then fetch next
+     *  page if there are more pages to be loaded, but only if it is not already
+     *  fetching or there isn't an error.
+     *
+     *  @param forceFetch Set to true in case of a retry callback, false otherwise.
      */
     fun fetchNextPage(
         callback: ItemsLoadedCallback<Entity>,
         forceFetch: Boolean = false
     ): Boolean {
-        if (hasMorePages && (forceFetch || !(_networkState.value is NetworkState.Loading || _networkState.value is NetworkState.Error))) {
+        if (forceFetch || (hasMorePages && !(_networkState.value is NetworkState.Loading || _networkState.value is NetworkState.Error))) {
             fetchNextPageInternal(callback)
             return true
         }

@@ -2,6 +2,7 @@ package com.husseinelfeky.githubpaging.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.husseinelfeky.githubpaging.R
 import com.husseinelfeky.githubpaging.common.paging.base.ItemsLoadedCallback
 import com.husseinelfeky.githubpaging.common.paging.base.PagingViewModel
 import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
@@ -16,10 +17,8 @@ class UserWithReposViewModel(
     private val fetchingRepo: UserWithReposRepository
 ) : PagingViewModel<UserWithRepos>() {
 
-    var currentItem = 0L
-
     init {
-        observeTotalPages()
+        observeEndPosition()
     }
 
     override fun loadInitialPage(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
@@ -28,11 +27,11 @@ class UserWithReposViewModel(
                 _pagedListState.postValue(PagedListState.Loading)
             }
             .subscribe({ usersWithRepos ->
-                currentItem = usersWithRepos.last().user.id
                 callback(usersWithRepos)
                 if (usersWithRepos.isEmpty()) {
                     _pagedListState.postValue(PagedListState.Empty)
                 } else {
+                    currentKey = usersWithRepos.last().user.id
                     _pagedListState.postValue(PagedListState.Loaded)
                 }
             }, {
@@ -41,17 +40,25 @@ class UserWithReposViewModel(
             })
 
     override fun loadNextPage(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
-        fetchingRepo.getUsersWithRepos(currentItem)
+        fetchingRepo.getUsersWithRepos(currentKey)
             .doOnSubscribe {
                 _networkState.postValue(NetworkState.Loading)
             }
             .subscribe({ usersWithRepos ->
-                currentItem = usersWithRepos.last().user.id
                 callback(usersWithRepos)
-                _networkState.postValue(NetworkState.Loaded)
+                currentKey = usersWithRepos.last().user.id
+                if (!hasMorePages) {
+                    _networkState.postValue(
+                        NetworkState.Error(
+                            messageRes = R.string.failed_to_load_more_users
+                        )
+                    )
+                } else {
+                    _networkState.postValue(NetworkState.Loaded)
+                }
             }, {
                 Timber.e(it)
-                _networkState.postValue(NetworkState.Error(it))
+                _networkState.postValue(NetworkState.Error(it, R.string.failed_to_load_more_users))
             })
 
     override fun invalidateDataSource(callback: ItemsLoadedCallback<UserWithRepos>): Disposable =
@@ -60,11 +67,11 @@ class UserWithReposViewModel(
                 _refreshState.postValue(NetworkState.Loading)
             }
             .subscribe({ usersWithRepos ->
-                currentItem = usersWithRepos.last().user.id
                 callback(usersWithRepos)
                 if (usersWithRepos.isEmpty()) {
                     _pagedListState.postValue(PagedListState.Empty)
                 } else {
+                    currentKey = usersWithRepos.last().user.id
                     _pagedListState.postValue(PagedListState.Loaded)
                 }
                 _refreshState.postValue(NetworkState.Loaded)
@@ -73,10 +80,10 @@ class UserWithReposViewModel(
                 _refreshState.postValue(NetworkState.Error(it))
             })
 
-    override fun observeTotalPages() {
-        fetchingRepo.getTotalPages()
-            .subscribe { totalPages ->
-                hasMorePages = currentPage < totalPages
+    override fun observeEndPosition() {
+        fetchingRepo.getEndPosition()
+            .subscribe { endPosition ->
+                this.endPosition = endPosition
             }
             .addTo(compositeDisposable)
     }

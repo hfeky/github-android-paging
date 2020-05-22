@@ -19,8 +19,8 @@ import com.husseinelfeky.githubpaging.common.paging.base.PagingItem
     ]
 )
 data class GitHubRepo(
-    @PrimaryKey val id: Long,
-    val userId: Long,
+    @PrimaryKey val id: Int,
+    val userId: Int,
     val name: String
 ) : PagingItem {
 

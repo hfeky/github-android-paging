@@ -11,7 +11,7 @@ interface GitHubApi {
 
     @GET("users")
     fun getUsers(
-        @Query("since") sinceId: Long,
+        @Query("since") sinceId: Int,
         @Query("per_page") pageSize: Int
     ): Single<List<User>>
 

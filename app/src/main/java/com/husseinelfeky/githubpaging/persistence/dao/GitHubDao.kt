@@ -13,13 +13,13 @@ interface GitHubDao {
 
     @Transaction
     @Query("SELECT * FROM users ORDER BY id LIMIT :itemsLimit")
-    fun getUsersWithRepos(itemsLimit: Long): Flowable<List<UserWithRepos>>
+    fun getUsersWithRepos(itemsLimit: Int): Flowable<List<UserWithRepos>>
 
     @Query("SELECT * FROM users ORDER BY id LIMIT :pageSize OFFSET :offset")
-    fun getUsers(pageSize: Int, offset: Long): Single<List<User>>
+    fun getUsers(pageSize: Int, offset: Int): Single<List<User>>
 
     @Query("SELECT * FROM repositories WHERE userId = :userId ORDER BY name")
-    fun getUserRepos(userId: Long): Single<List<GitHubRepo>>
+    fun getUserRepos(userId: Int): Single<List<GitHubRepo>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUsers(users: List<User>): Completable

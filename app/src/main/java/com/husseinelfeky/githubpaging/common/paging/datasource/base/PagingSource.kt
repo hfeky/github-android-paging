@@ -4,9 +4,9 @@ import io.reactivex.subjects.BehaviorSubject
 
 abstract class PagingSource {
 
-    private val totalPages = BehaviorSubject.createDefault(Int.MAX_VALUE)
+    private val endPosition = BehaviorSubject.createDefault(Int.MAX_VALUE)
 
-    fun getTotalPages(): BehaviorSubject<Int> = totalPages
+    fun getEndPosition(): BehaviorSubject<Int> = endPosition
 
     abstract fun getPageSize(): Int
 }

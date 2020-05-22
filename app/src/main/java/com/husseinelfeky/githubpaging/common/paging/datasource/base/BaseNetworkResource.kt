@@ -4,5 +4,9 @@ abstract class BaseNetworkResource<Entity> : PagingSource() {
 
     private val pagedList = LinkedHashSet<Entity>()
 
-    fun getPagedList(): LinkedHashSet<Entity> = pagedList
+    protected fun getPagedList(): LinkedHashSet<Entity> = pagedList
+
+    protected fun updateEndPosition(lastItem: Int) {
+        getEndPosition().onNext(lastItem)
+    }
 }

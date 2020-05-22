@@ -11,6 +11,6 @@ abstract class IndexedDatabaseResource<Index : Any, Entity : Any> : BaseDatabase
 
     protected abstract fun fetchItemsFromDatabaseUntil(
         index: Index,
-        vararg params: Any
+        vararg params: Any?
     ): Flowable<List<Entity>>
 }

@@ -1,4 +1,4 @@
-package com.husseinelfeky.githubpaging.common.paging.datasource.normal
+package com.husseinelfeky.githubpaging.common.paging.datasource.basic
 
 import com.husseinelfeky.githubpaging.common.paging.datasource.common.CachingLayer
 import com.husseinelfeky.githubpaging.common.paging.datasource.common.FetchingStrategy
@@ -6,9 +6,9 @@ import io.reactivex.Single
 import timber.log.Timber
 
 /**
- * @param Entity Type of items being loaded by the [NormalDataSource].
+ * @param Entity Type of items being loaded by the [BasicDataSource].
  */
-abstract class NormalDataSource<Entity : Any> {
+abstract class BasicDataSource<Entity : Any> {
 
     open fun shouldFetchFromNetwork(databaseItems: List<Entity>): Boolean {
         return databaseItems.isEmpty()
@@ -16,7 +16,7 @@ abstract class NormalDataSource<Entity : Any> {
 
     fun fetchItems(
         fetchingStrategy: FetchingStrategy = FetchingStrategy.NETWORK_FIRST,
-        vararg params: Any
+        vararg params: Any?
     ): Single<List<Entity>> {
         when (fetchingStrategy) {
             FetchingStrategy.CACHE_FIRST -> {
@@ -53,7 +53,7 @@ abstract class NormalDataSource<Entity : Any> {
         }
     }
 
-    private fun fetchAndSaveIfRequired(vararg params: Any): Single<List<Entity>> {
+    private fun fetchAndSaveIfRequired(vararg params: Any?): Single<List<Entity>> {
         val items = fetchItemsFromNetwork(*params)
             .doOnError { throwable ->
                 Timber.e(throwable, "Failed to fetch items from network.")
@@ -71,7 +71,7 @@ abstract class NormalDataSource<Entity : Any> {
         }
     }
 
-    protected abstract fun fetchItemsFromNetwork(vararg params: Any): Single<List<Entity>>
+    protected abstract fun fetchItemsFromNetwork(vararg params: Any?): Single<List<Entity>>
 
-    protected abstract fun fetchItemsFromDatabase(vararg params: Any): Single<List<Entity>>
+    protected abstract fun fetchItemsFromDatabase(vararg params: Any?): Single<List<Entity>>
 }

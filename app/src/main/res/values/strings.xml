@@ -6,6 +6,7 @@
     <string name="retry">Retry</string>
 
     <!-- Main Screen -->
+    <string name="failed_to_load_more_users">Failed to load more users.</string>
     <string name="no_repositories_available">No repositories available.</string>
     <string name="unknown_error_occurred">An unknown error occurred.</string>
 

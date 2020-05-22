@@ -14,10 +14,10 @@ class UserWithReposRepository(
     private val gitHubReposFetchingRepo: GitHubReposFetchingRepo = GitHubReposFetchingRepo()
 ) {
 
-    fun getTotalPages(): BehaviorSubject<Int> = usersFetchingRepo.getTotalPages()
+    fun getEndPosition(): BehaviorSubject<Int> = usersFetchingRepo.getEndPosition()
 
     fun getUsersWithRepos(
-        item: Long,
+        item: Int,
         fetchingStrategy: FetchingStrategy = FetchingStrategy.NETWORK_FIRST
     ): Flowable<List<UserWithRepos>> {
         return usersFetchingRepo.fetchItems(item)
