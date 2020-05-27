@@ -3,13 +3,13 @@ package com.husseinelfeky.githubpaging.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.common.paging.base.ItemsLoadedCallback
-import com.husseinelfeky.githubpaging.common.paging.base.PagingViewModel
-import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
-import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
-import com.husseinelfeky.githubpaging.common.paging.utils.addTo
-import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
-import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
+import com.husseinelfeky.githubpaging.database.entities.UserWithRepos
+import com.husseinelfeky.githubpaging.paging.base.ItemsLoadedCallback
+import com.husseinelfeky.githubpaging.paging.base.PagingViewModel
+import com.husseinelfeky.githubpaging.paging.state.NetworkState
+import com.husseinelfeky.githubpaging.paging.state.PagedListState
+import com.husseinelfeky.githubpaging.paging.utils.addTo
+import com.husseinelfeky.githubpaging.repository.UserWithReposRepository
 import io.reactivex.disposables.Disposable
 import timber.log.Timber
 

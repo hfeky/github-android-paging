@@ -9,14 +9,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.MergeAdapter
 import com.google.android.material.snackbar.Snackbar
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.common.paging.adapter.NetworkStateAdapter
-import com.husseinelfeky.githubpaging.common.paging.base.ItemsLoadedCallback
-import com.husseinelfeky.githubpaging.common.paging.base.PagingSetupCallback
-import com.husseinelfeky.githubpaging.common.paging.state.NetworkState
-import com.husseinelfeky.githubpaging.common.paging.state.PagedListState
-import com.husseinelfeky.githubpaging.common.paging.utils.setupPaging
-import com.husseinelfeky.githubpaging.persistence.entities.UserWithRepos
-import com.husseinelfeky.githubpaging.repository.userwithrepos.UserWithReposRepository
+import com.husseinelfeky.githubpaging.database.entities.UserWithRepos
+import com.husseinelfeky.githubpaging.paging.adapter.NetworkStateAdapter
+import com.husseinelfeky.githubpaging.paging.base.ItemsLoadedCallback
+import com.husseinelfeky.githubpaging.paging.base.PagingSetupCallback
+import com.husseinelfeky.githubpaging.paging.state.NetworkState
+import com.husseinelfeky.githubpaging.paging.state.PagedListState
+import com.husseinelfeky.githubpaging.paging.utils.setupPaging
+import com.husseinelfeky.githubpaging.repository.UserWithReposRepository
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_loading.*
 

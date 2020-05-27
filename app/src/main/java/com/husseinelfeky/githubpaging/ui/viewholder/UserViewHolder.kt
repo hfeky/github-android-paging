@@ -8,7 +8,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.persistence.entities.User
+import com.husseinelfeky.githubpaging.database.entities.User
 import kotlinx.android.synthetic.main.item_user.view.*
 
 class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {

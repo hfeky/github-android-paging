@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.husseinelfeky.githubpaging.R
-import com.husseinelfeky.githubpaging.persistence.entities.GitHubRepo
+import com.husseinelfeky.githubpaging.database.entities.GitHubRepo
 import kotlinx.android.synthetic.main.item_repo.view.*
 
 class RepoViewHolder(view: View) : RecyclerView.ViewHolder(view) {

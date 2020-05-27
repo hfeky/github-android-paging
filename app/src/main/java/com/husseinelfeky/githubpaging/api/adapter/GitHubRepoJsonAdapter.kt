@@ -1,6 +1,6 @@
 package com.husseinelfeky.githubpaging.api.adapter
 
-import com.husseinelfeky.githubpaging.persistence.entities.GitHubRepo
+import com.husseinelfeky.githubpaging.database.entities.GitHubRepo
 import com.squareup.moshi.*
 
 class GitHubRepoJsonAdapter : JsonAdapter<GitHubRepo>() {

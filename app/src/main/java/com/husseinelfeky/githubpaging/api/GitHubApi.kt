@@ -1,7 +1,7 @@
 package com.husseinelfeky.githubpaging.api
 
-import com.husseinelfeky.githubpaging.persistence.entities.GitHubRepo
-import com.husseinelfeky.githubpaging.persistence.entities.User
+import com.husseinelfeky.githubpaging.database.entities.GitHubRepo
+import com.husseinelfeky.githubpaging.database.entities.User
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
